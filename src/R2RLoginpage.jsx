@@ -21,15 +21,11 @@ export default function R2RLoginpage() {
         
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <img
-            src="/R2R_image.png"
-            alt="R2R Logo"
-            className="w-auto h-20 mb-3"
-          />
+          
 
 
           <p className="mt-1 text-sm text-gray-500">
-            Sign in to continue
+            
           </p>
         </div>
 
