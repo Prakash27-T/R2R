@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 
-//import R2RLoginpage from "./R2RLoginpage";
+//import R2RLoginpage From "./R2RLoginpage";
 const navItems = [
   {
     label: "Home",
