@@ -1,0 +1,249 @@
+import { useState } from "react";
+import { NavLink, Outlet } from "react-router-dom";
+
+//import R2RLoginpage from "./R2RLoginpage";
+const navItems = [
+  {
+    label: "Home",
+    path: " ",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-6 h-6"
+      >
+        <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z" />
+        <path d="M9 21V12h6v9" />
+      </svg>
+    ),
+  },
+
+  {
+    label: "PR",
+    path: "/app/DbsPurchaseRequest",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-6 h-6"
+      >
+        <rect x="4" y="3" width="13" height="17" rx="2" />
+        <path d="M12 3v4M17 7h2a2 2 0 010 4h-2" />
+        <line x1="8" y1="12" x2="13" y2="12" />
+        <line x1="8" y1="16" x2="13" y2="16" />
+      </svg>
+    ),
+  },
+
+  {
+    label: "RFQ",
+    path: "/app/RFQPage",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-6 h-6"
+      >
+        <rect x="4" y="3" width="13" height="17" rx="2" />
+        <path d="M9 3v4M4 7h2a2 2 0 010 4H4" />
+        <path d="M13 14l2 2 4-4" />
+      </svg>
+    ),
+  },
+
+  {
+    label: "PO",
+    path: "/app/PurchaseOrders",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-6 h-6"
+      >
+        <rect x="4" y="3" width="13" height="17" rx="2" />
+        <path d="M9 3v4M4 7h2a2 2 0 010 4H4" />
+        <path d="M8 14h8M8 17h5" />
+      </svg>
+    ),
+  },
+
+  {
+    label: "GRN",
+    path: "/app/GRNOverview",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-6 h-6"
+      >
+        <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4a2 2 0 001-1.73z" />
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+        <line x1="12" y1="22.08" x2="12" y2="12" />
+      </svg>
+    ),
+  },
+];
+
+export default function FigR2rNavbar() {
+  const [collapsed, setCollapsed] = useState(false);
+  
+  return (
+    <>
+    <div className="flex min-h-screen bg-gray-100">
+      
+      {/* Sidebar */}
+      <aside
+        className={`flex flex-col items-center bg-[#1e2130] transition-all duration-300 ease-in-out ${
+          collapsed
+            ? "w-0 overflow-hidden opacity-0"
+            : "w-20 opacity-100"
+        } md:flex md:opacity-100 md:overflow-visible relative z-20`}
+        style={{ minHeight: "100vh" }}
+      >
+        
+        {/* Top icons row */}
+        <div className="flex items-center justify-between w-full px-3 pt-4 pb-2">
+
+          {/* Logo Icon */}
+          <button className="text-gray-400 transition hover:text-white">
+            <svg
+              viewBox="0 0 24 24"
+              className="w-5 h-5"
+              fill="currentColor"
+            >
+              <circle cx="8" cy="8" r="3" fill="#F24E1E" />
+              <circle cx="16" cy="8" r="3" fill="#A259FF" />
+              <circle cx="8" cy="16" r="3" fill="#0ACF83" />
+              <circle cx="16" cy="16" r="3" fill="#1ABCFE" />
+            </svg>
+          </button>
+
+          {/* Collapse button */}
+          <button
+            onClick={() => setCollapsed((c) => !c)}
+            className="hidden text-gray-400 transition hover:text-white md:block"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <line x1="9" y1="3" x2="9" y2="21" />
+            </svg>
+          </button>
+        </div>
+
+        {/* R2R Logo */}
+        <div className="flex flex-col items-center mt-2 mb-6 select-none">
+          <img
+           src="/R2R_image.png"
+          alt="R2R Logo"
+          className="object-contain w-auto h-auto"
+          />
+        </div>
+
+        {/* Divider */}
+        <div className="w-10 h-px mb-5 bg-gray-700" />
+
+        {/* Nav Items */}
+        <nav className="flex flex-col items-center flex-1 w-full gap-2 px-2">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.label}
+              to={item.path}
+              className={({ isActive }) =>
+                `flex flex-col items-center justify-center 
+                w-14 h-14 rounded-xl gap-1 
+                transition-all duration-200 
+                group relative
+                ${
+                  isActive
+                    ? "bg-blue-700 text-white shadow-lg shadow-blue-900/40"
+                    : "text-gray-400 hover:bg-gray-700/50 hover:text-white"
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <span
+                    className={`transition-colors ${
+                      isActive
+                        ? "text-white"
+                        : "text-gray-400 group-hover:text-white"
+                    }`}
+                  >
+                    {item.icon}
+                  </span>
+
+                  <span
+                    className={`text-[10px] font-semibold tracking-wide ${
+                      isActive
+                        ? "text-white"
+                        : "text-gray-500 group-hover:text-gray-300"
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+
+                  {/* Active left indicator */}
+                  {isActive && (
+                    <span className="absolute left-0 w-1 h-8 -translate-y-1/2 bg-blue-400 rounded-r-full top-1/2" />
+                  )}
+                </>
+              )}
+            </NavLink>
+          ))}
+        </nav>
+
+      </aside>
+         <main className="flex-1 overflow-y-auto">
+         <Outlet />
+    </main>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setCollapsed((c) => !c)}
+        className="md:hidden fixed top-4 left-4 z-30 bg-[#1e2130] text-white p-2 rounded-lg shadow-lg"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      {/* Actual Page Content */}
+      
+    </div>
+    
+  </>
+  );
+}

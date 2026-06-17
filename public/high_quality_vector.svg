@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="986" height="506" viewBox="0 0 493 253">
+  <rect width="493" height="253" fill="#f4f4f4"/>
+
+  <!-- browser window -->
+  <rect x="205" y="3" width="272" height="178" rx="12" fill="none" stroke="#9aa0aa" stroke-width="2"/>
+  <line x1="205" y1="25" x2="477" y2="25" stroke="#9aa0aa" stroke-width="2"/>
+  <circle cx="230" cy="14" r="5" fill="#6b8cff"/>
+  <circle cx="245" cy="14" r="5" fill="#5d7cff"/>
+  <circle cx="260" cy="14" r="5" fill="#e34c78"/>
+
+  <!-- form fields -->
+  <rect x="238" y="50" width="205" height="15" fill="#d9ffff" stroke="#28c9d1" stroke-width="2"/>
+  <rect x="238" y="76" width="200" height="15" fill="#d9ffff" stroke="#28c9d1" stroke-width="2"/>
+  <rect x="238" y="102" width="202" height="15" fill="#d9ffff" stroke="#28c9d1" stroke-width="2"/>
+  <rect x="238" y="134" width="65" height="18" rx="9" fill="#e34777"/>
+
+  <!-- cart -->
+  <polyline points="12,74 60,78 78,161 222,161" fill="none" stroke="#9aa0aa" stroke-width="2"/>
+  <line x1="60" y1="78" x2="100" y2="161" stroke="#9aa0aa" stroke-width="2"/>
+  <circle cx="110" cy="202" r="12" fill="none" stroke="#9aa0aa" stroke-width="2"/>
+  <circle cx="240" cy="202" r="12" fill="none" stroke="#9aa0aa" stroke-width="2"/>
+  <rect x="10" y="67" width="36" height="12" rx="4" fill="#f39a11"/>
+
+  <!-- packages -->
+  <g transform="translate(95,112)">
+    <polygon points="0,35 58,32 60,79 2,82" fill="none" stroke="#6d63ff" stroke-width="2"/>
+    <rect x="8" y="43" width="14" height="14" fill="#f39a11"/>
+    <polygon points="56,0 120,0 118,42 56,42" fill="none" stroke="#8b7cff" stroke-width="2"/>
+    <line x1="56" y1="0" x2="56" y2="42" stroke="#8b7cff" stroke-width="2"/>
+    <line x1="56" y1="20" x2="118" y2="20" stroke="#8b7cff" stroke-width="2"/>
+    <rect x="63" y="8" width="6" height="10" fill="none" stroke="#8b7cff" stroke-width="1.5"/>
+    <rect x="74" y="8" width="6" height="10" fill="none" stroke="#8b7cff" stroke-width="1.5"/>
+    <polygon points="115,15 135,18 130,75 118,42" fill="none" stroke="#9aa0aa" stroke-width="2"/>
+    <rect x="105" y="48" width="10" height="10" fill="none" stroke="#8b7cff" stroke-width="1.5"/>
+  </g>
+</svg>
