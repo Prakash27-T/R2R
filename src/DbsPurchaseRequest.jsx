@@ -1,13 +1,10 @@
-import { useState } from "react";
-import  NewPurchaseReqst  from "./NewPurchaseReqst";
-import PrRequstInitSuccess from  "./PrRequstInitSuccess";
+import { useState, useEffect } from "react";
+import NewPurchaseReqst from "./NewPurchaseReqst";
+import PrRequstInitSuccess from "./PrRequstInitSuccess";
 import PRMaterialRequirement from "./PRMaterialRequirement";
 import PRRequestApproved from "./components/PRRequestApproved";
-
-const stats = [
- ];
-  
-  
+import axios from "axios";
+const stats = [];
 
 
 const statusStyles = {
@@ -25,7 +22,7 @@ const stageColor = {
 };
 
 const allData = [
-  
+
 ];
 
 export default function DbsPurchaseRequest() {
@@ -33,29 +30,58 @@ export default function DbsPurchaseRequest() {
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
-  
+  const [filter, setFilter] = useState("All");
+  const[projects,setProjects]=useState([]);
+  const loadProjects = async () => {
+    try {
 
-  
-  const filtered = allData.filter(
-    (r) =>
-      r.name.toLowerCase().includes(search.toLowerCase()) ||
-      r.id.toLowerCase().includes(search.toLowerCase())
-  );
+      const response = await axios.get(
+        "http://localhost:5000/api/PRList"
+      );
+
+      console.log(response.data);
+      setProjects(response.data);
+
+
+
+    }
+    catch (error) {
+      console.log("Error loading projects", error);
+    }
+  };
+
+  const filteredProjects = response.filter((project) => {
+
+    const matchStatus =
+      filter === "All"
+        ? true
+        : project.status === filter;
+
+    const matchSearch =
+      project.ProjectId
+        ?.toLowerCase()
+        .includes(search.toLowerCase()) ||
+      project.ProductName
+        ?.toLowerCase()
+        .includes(search.toLowerCase());
+
+    return matchStatus && matchSearch;
+  });
 
   return (
-      
-      
-    
+
+
+
     <div className="min-h-screen font-sans bg-gray-50">
       {/* Navbar */}
       <header className="flex items-center justify-between px-8 py-4 bg-white border-b border-gray-100">
-       <div className="flex flex-col leading-none">
-            <span className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600">
-              R2R
-            </span>
-            <span className="text-gray-500 text-[9px] tracking-widest uppercase">Request to Receipt</span>
-          </div>
-        
+        <div className="flex flex-col leading-none">
+          <span className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600">
+            R2R
+          </span>
+          <span className="text-gray-500 text-[9px] tracking-widest uppercase">Request to Receipt</span>
+        </div>
+
         <div className="flex items-center gap-5">
           <button className="transition-colors text-slate-500 hover:text-slate-700">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -94,7 +120,7 @@ export default function DbsPurchaseRequest() {
           </div>
 
           {/* Illustration placeholder */}
-          
+
         </div>
 
         {/* Table Section */}
@@ -107,11 +133,10 @@ export default function DbsPurchaseRequest() {
               <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
                 <button
                   onClick={() => setActiveTab("active")}
-                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-                    activeTab === "active"
+                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab === "active"
                       ? "bg-white text-blue-600 shadow-sm"
                       : "text-slate-500 hover:text-slate-700"
-                  }`}
+                    }`}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -120,11 +145,10 @@ export default function DbsPurchaseRequest() {
                 </button>
                 <button
                   onClick={() => setActiveTab("history")}
-                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-                    activeTab === "history"
+                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab === "history"
                       ? "bg-white text-blue-600 shadow-sm"
                       : "text-slate-500 hover:text-slate-700"
-                  }`}
+                    }`}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -147,7 +171,7 @@ export default function DbsPurchaseRequest() {
                   />
                 ) : (
                   <button
-                     //onClick={() => setStep(2)}
+                    //onClick={() => setStep(2)}
                     onClick={() => setShowSearch(true)}
                     className="p-2 border rounded-lg border-slate-200 hover:bg-gray-50 text-slate-500"
                   >
@@ -169,21 +193,21 @@ export default function DbsPurchaseRequest() {
               </button>
 
               {/* New PR Button */}
-              <button 
-              
-                   onClick={() => setShowPopup(true)}
-               className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white transition-colors bg-blue-700 rounded-lg shadow-sm hover:bg-blue-800">
+              <button
+
+                onClick={() => setShowPopup(true)}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white transition-colors bg-blue-700 rounded-lg shadow-sm hover:bg-blue-800">
                 <span className="text-lg leading-none">+</span>
                 New Purchase Requisition
               </button>
               {showPopup && (
-                <NewPurchaseReqst onClose={() => setShowPopup(false)} /> 
+                <NewPurchaseReqst onClose={() => setShowPopup(false)} />
               )}
-              
-              
-              
+
+
+
             </div>
-            
+
           </div>
 
           {/* Table */}
@@ -232,9 +256,9 @@ export default function DbsPurchaseRequest() {
             </table>
           </div>
         </div>
-        
+
       </main>
-     </div>
-    
-     );
+    </div>
+
+  );
 }
