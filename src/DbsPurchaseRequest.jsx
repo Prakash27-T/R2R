@@ -5,59 +5,10 @@ import PRMaterialRequirement from "./PRMaterialRequirement";
 import PRRequestApproved from "./components/PRRequestApproved";
 
 const stats = [
-  {
-    count: "28",
-    label: "Total RequisitionNumber",
-    sub: "Total PRs created this month",
-    color: "text-indigo-500",
-    bg: "bg-white",
-    border: "border-indigo-100",
-    icon: (
-      <svg className="w-8 h-8 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-      </svg>
-    ),
-  },
-  {
-    count: "03",
-    label: "Pending Approvals",
-    sub: "Awaiting manager/procurement approval",
-    color: "text-blue-500",
-    bg: "bg-white",
-    border: "border-blue-100",
-    icon: (
-      <svg className="w-8 h-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-  },
-  {
-    count: "01",
-    label: "Rejected Requests",
-    sub: "Returned for correction or rejected",
-    color: "text-amber-500",
-    bg: "bg-amber-50",
-    border: "border-amber-100",
-    icon: (
-      <svg className="w-8 h-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 13h6m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    ),
-  },
-  {
-    count: "03",
-    label: "Approved Requests",
-    sub: "Successfully approved requisitions",
-    color: "text-teal-500",
-    bg: "bg-teal-50",
-    border: "border-teal-100",
-    icon: (
-      <svg className="w-8 h-8 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-  },
-];
+ ];
+  
+  
+
 
 const statusStyles = {
   "In Review": "bg-amber-100 text-amber-600",
@@ -74,11 +25,7 @@ const stageColor = {
 };
 
 const allData = [
-  { id: "PR-119", name: "PCB Raw Material Procurement", date: "09/05/26", materials: 3, amount: "1,25,000 Rs", status: "In Review", stage: "Awaiting Approval", updated: "09/05/26" },
-  { id: "PR-109", name: "Maintenance Spare Parts Request", date: "10/05/26", materials: 5, amount: "22,300 Rs", status: "Approved", stage: "Awaiting Procurement Action", updated: "10/05/26" },
-  { id: "PR-121", name: "Server Upgrade Requirement", date: "10/05/26", materials: 5, amount: "22,300 Rs", status: "Approved", stage: "RFQ in Progress", updated: "10/05/26" },
-  { id: "PR-125", name: "PCB Raw Material Procurement", date: "10/05/26", materials: 5, amount: "22,300 Rs", status: "Approved", stage: "PO in Progress", updated: "10/05/26" },
-  { id: "PR-126", name: "Maintenance Spare Parts Request", date: "10/05/26", materials: 5, amount: "22,300 Rs", status: "Closed", stage: "PO Released", updated: "10/05/26" },
+  
 ];
 
 export default function DbsPurchaseRequest() {

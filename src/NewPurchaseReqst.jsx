@@ -7,13 +7,26 @@ export default function NewPurchaseReqst({ onClose }) {
   const [accDate, setAccDate] = useState("");
   const [purpose, setPurpose] = useState("");
   const [showPopup, setShowPopup] = useState(false);
+  const [dateError, setDateError] = useState("");
+  const [site, setSite] = useState(" ");
+   const [warehouse, setWarehouse] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
     setReqDate(today);
     setAccDate(today);
   }, []);
- 
+ const validateDate = (selectedDate) => {
+  const today = new Date().toISOString().split("T")[0];
+
+  if (selectedDate < today) {
+    setDateError("Old dates are not allowed.");
+    return false;
+  }
+
+  setDateError("");
+  return true;
+};
 
   return (
     
@@ -55,31 +68,68 @@ export default function NewPurchaseReqst({ onClose }) {
             
            <div className="flex flex-1 gap-2 py-3 flex-rowrap flex- sm:flex-row">
               <label className="py-2 text-sm font-medium text-gray-700 sm:w-40 shrink-0">
-              Requested Date <span className="text-pink-500">*</span>
+            Requested Date <span className="text-pink-500">*</span>
             </label>
               <div className="relative flex-1 min-w-[138px]">
                 <input
-                  type="date"
-                  value={accDate}
-                  onChange={(e) => setAccDate(e.target.value)}
+                   type="date"
+                     value={reqDate}
+                      min={new Date().toISOString().split("T")[0]}
+                      onChange={(e) => {
+                       const value = e.target.value;
+                          setReqDate(value);
+                            validateDate(value);
+                         }}
                   className="w-full px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
                 />
+                
               </div>
               <label className="self-center text-sm font-medium text-gray-700 whitespace-nowrap">
                 Accounting Date <span className="text-pink-500">*</span>
               </label>
              
                 <input
-                  type="date"
-                  value={accDate}
-                  onChange={(e) => setAccDate(e.target.value)}
+                   type="date"
+                     value={reqDate}
+                      min={new Date().toISOString().split("T")[0]}
+                      onChange={(e) => {
+                       const value = e.target.value;
+                          setReqDate(value);
+                            validateDate(value);
+                         }}
                   className="w-full px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
                 />
               
             </div>
           </div>
           {/*Site wareHouse*/}
-          
+          <div className="flex flex-1 gap-2 py-3 flex-rowrap flex- sm:flex-row">
+              <label className="py-2 text-sm font-medium text-gray-700 sm:w-40 shrink-0">
+              Site Id
+            </label>
+              <div className="relative flex-1 min-w-[138px]">
+                <select
+                   value={site}
+                   onChange={(e) => setSite(e.target.value)}
+                  className="w-full px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
+                >
+                   <option value="">Select Site</option>
+                  </select>
+              </div>
+              <label className="self-center text-sm font-medium text-gray-700 whitespace-nowrap">
+                WarehouseId 
+              </label>
+             
+                <select
+                  
+                   value={site}
+                   onChange={(e) => setSite(e.target.value)}
+                  className="w-full px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
+                >
+                  <option value="">Select Warehouse </option>
+                  </select>
+              
+            </div>
           
           {/* Requisition Purpose */}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
