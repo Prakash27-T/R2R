@@ -34,8 +34,7 @@ app.get("/api/Projects", async (req, res) => {
       }
       );
 
-       const accessToken =
-      tokenResponse.data.access_token;
+       const accessToken = tokenResponse.data.access_token;
 
        console.log("Token:", accessToken);
 
