@@ -4,7 +4,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 
 dotenv.config();
-
+const router = express.Router();
 const app = express();
 
 app.use(cors());
@@ -14,7 +14,7 @@ app.get("/api/PRList", async (req, res) => {
   try {
 
     const tokenResponse = await axios.post(
-      "https://login.microsoftonline.com/a5bc2758-f276-4349-916f-7cec75e119a6/oauth2/v2.0/token",
+      process.env.D365_TOKEN_URL,
       new URLSearchParams({
         client_id: process.env.CLIENT_ID,
         client_secret: process.env.CLIENT_SECRET,
@@ -29,9 +29,10 @@ app.get("/api/PRList", async (req, res) => {
     );
 
     const accessToken = tokenResponse.data.access_token;
+    console.log(accessToken)
 
     const response = await axios.get(
-      "https://shlt-dev01185046dcf29ca8dcdevaos.axcloud.dynamics.com/data/PurchaseRequisitionLinesV2",
+      process.env.PR_HEADER,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -41,11 +42,13 @@ app.get("/api/PRList", async (req, res) => {
     );
 
     const PRList = response.data.value.map(item => ({
-      ProjectId: item.ProjectId,
-      ProductName: item.ProductName,
-      RequestedDate: item.RequestedDate,
-      PurchasePriceQuantity: item.PurchasePriceQuantity,
-      LineStatus: item.LineStatus
+      ProjectId: item.DefaultProjectId,
+      RequisitionNumber: item.RequisitionNumber,
+      RequisitionName: item.RequisitionName,
+      RequestedDate: item.DefaultRequestedDate,
+      RequisitionPurpose: item.RequisitionPurpose,
+      LineStatus: item.RequisitionStatus,
+      
     }));
 
     res.json(PRList);
@@ -60,6 +63,34 @@ app.get("/api/PRList", async (req, res) => {
 
   }
 });
+/* PR_LISTLINE*/
+app.use("/api", router);
+router.get("/PR_lines/:RequisitionNumber", async (req, res) => {
+  try {
+     const { RequisitionNumber } = req.params;
+      const accessToken = await getAccessToken();
+    const response = await axios.get(
+       `${process.env.PR_DETAIL_LINEPAGE}?$filter=RequisitionNumber eq '${RequisitionNumber}'`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/json",
+        }
+      }
+    );
+    console.log("RequisitionNumber:", RequisitionNumber);
+    res.json(response.data.value);
+  } catch (error) {
+    console.error("PR Lines Error:", error.response?.data || error.message);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+     }
+    });
+
+   //export default router;
 
 const PORT = process.env.PORT || 5000;
 

@@ -20,7 +20,7 @@ import POInitiatedSucess from "./components/POInitiatedSucess";
 import POdetailform from "./POdetailform";
 import POSubmitted from "./components/POSubmitted";
 import R2RLoginpage from "./R2RLoginpage";
-
+import PRLineReport from "./components/PRLineReport"
 function App() {
 
   return (
@@ -48,6 +48,7 @@ function App() {
             <Route path="POInitiatedSucess" element={<POInitiatedSucess />} />
             <Route path="POdetailform" element={<POdetailform />} />
             <Route path="POSubmitted" element={<POSubmitted />} />
+            <Route path="PRLineReport/:RequisitionNumber" element={<PRLineReport />} />
           </Route> 
       </Routes>
   

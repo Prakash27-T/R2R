@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import PurchaseOrders from "./PurchaseOrders";
 import PrRequstInitSuccess from  "./PrRequstInitSuccess";
+
 export default function NewPurchaseReqst({ onClose }) {
   const [prName, setPrName] = useState("");
   const [reqDate, setReqDate] = useState("");
@@ -23,9 +24,9 @@ export default function NewPurchaseReqst({ onClose }) {
     setDateError("Old dates are not allowed.");
     return false;
   }
-
-  setDateError("");
+setDateError("");
   return true;
+  
 };
 
   return (

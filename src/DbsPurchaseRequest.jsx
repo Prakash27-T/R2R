@@ -3,28 +3,9 @@ import NewPurchaseReqst from "./NewPurchaseReqst";
 import PrRequstInitSuccess from "./PrRequstInitSuccess";
 import PRMaterialRequirement from "./PRMaterialRequirement";
 import PRRequestApproved from "./components/PRRequestApproved";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 const stats = [];
-
-
-const statusStyles = {
-  "In Review": "bg-amber-100 text-amber-600",
-  Approved: "bg-teal-100 text-teal-600",
-  Closed: "bg-slate-200 text-slate-500",
-};
-
-const stageColor = {
-  "Awaiting Approval": "text-amber-500",
-  "Awaiting Procurement Action": "text-blue-500",
-  "RFQ in Progress": "text-indigo-500",
-  "PO in Progress": "text-teal-500",
-  "PO Released": "text-green-600",
-};
-
-const allData = [
-
-];
-
 export default function DbsPurchaseRequest() {
   const [activeTab, setActiveTab] = useState("active");
   const [search, setSearch] = useState("");
@@ -32,8 +13,9 @@ export default function DbsPurchaseRequest() {
   const [showPopup, setShowPopup] = useState(false);
   const [filter, setFilter] = useState("All");
   const[projects,setProjects]=useState([]);
+  const navigate = useNavigate();
   const loadProjects = async () => {
-    try {
+    try {     
 
       const response = await axios.get(
         "http://localhost:5000/api/PRList"
@@ -45,28 +27,29 @@ export default function DbsPurchaseRequest() {
 
 
     }
-    catch (error) {
-      console.log("Error loading projects", error);
-    }
-  };
+        catch (error) {
+          console.log("Error loading projects", error);
+        }
+    
+     };
+              const [materials, setMaterials] = useState([]);
 
-  const filteredProjects = response.filter((project) => {
-
-    const matchStatus =
-      filter === "All"
-        ? true
-        : project.status === filter;
-
-    const matchSearch =
-      project.ProjectId
-        ?.toLowerCase()
-        .includes(search.toLowerCase()) ||
-      project.ProductName
-        ?.toLowerCase()
-        .includes(search.toLowerCase());
-
-    return matchStatus && matchSearch;
-  });
+                     const handleRowClick = async (row) => {
+                    //await getMaterials(row.RequisitionNumber);
+                      console.log("Clicked:", row.RequisitionNumber);
+                     navigate(`/app/PRLineReport/${row.RequisitionNumber}`);
+                    };
+     
+       useEffect(() => {
+      loadProjects();
+       }, []); 
+  
+      const filteredProjects = projects.filter((project) => {
+      return (
+       project.ProjectId?.toLowerCase().includes(search.toLowerCase()) ||
+      project.RequisitionNumber?.toLowerCase().includes(search.toLowerCase())
+  );
+});
 
   return (
 
@@ -214,44 +197,33 @@ export default function DbsPurchaseRequest() {
           <div className="overflow-x-auto border border-gray-100 rounded-xl">
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="text-xs font-semibold tracking-wide uppercase bg-gray-50 text-slate-500">
-                  <th className="px-4 py-3">PR ID</th>
-                  <th className="px-4 py-3">PR Name</th>
-                  <th className="px-4 py-3">Requested Date</th>
-                  <th className="px-4 py-3 text-center">Total Materials</th>
-                  <th className="px-4 py-3 text-right">Estimated Amount</th>
-                  <th className="px-4 py-3 text-center">Status</th>
-                  <th className="px-4 py-3">Current Stage</th>
+                <tr className="text-xs font-semibold tracking-wide normal-case bg-gray-50 text-slate-500">
+                  <th className="px-4 py-3">RequisitionNumber</th>
+                  <th className="px-4 py-3"> Name</th>
+                  <th className="px-4 py-3"> Prepare</th>
+                  <th className="px-4 py-3">Project Id</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3 text-right">RequestedDate</th>
+                  <th className="px-4 py-3 text-center">RequisitionPurpose</th>
+                  
                   <th className="px-4 py-3">Last Updated</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {filtered.map((row) => (
-                  <tr key={row.id} className="transition-colors hover:bg-slate-50">
-                    <td className="px-4 py-3.5 font-medium text-slate-700">{row.id}</td>
-                    <td className="px-4 py-3.5 text-slate-600">{row.name}</td>
-                    <td className="px-4 py-3.5 text-slate-500">{row.date}</td>
-                    <td className="px-4 py-3.5 text-center text-slate-600">{row.materials}</td>
-                    <td className="px-4 py-3.5 text-right text-slate-600 font-medium">{row.amount}</td>
-                    <td className="px-4 py-3.5 text-center">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusStyles[row.status]}`}>
-                        {row.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <span className="flex items-center gap-1.5">
-                        <span className={`w-2 h-2 rounded-full inline-block ${stageColor[row.stage].replace("text-", "bg-")}`}></span>
-                        <span className={`text-xs font-medium ${stageColor[row.stage]}`}>{row.stage}</span>
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 text-slate-500">{row.updated}</td>
-                  </tr>
-                ))}
-                {filtered.length === 0 && (
-                  <tr>
-                    <td colSpan={8} className="py-10 text-center text-slate-400">No records found.</td>
-                  </tr>
-                )}
+                {filteredProjects.map((row, index) => (
+                   <tr key={index}
+                   className="cursor-pointer hover:bg-blue-50"
+                        onClick={() => handleRowClick(row)}
+                          
+                         >    
+                         <td className="px-4 py-3">{row.ProjectId}</td>
+                         <td className="px-4 py-3">{row.RequisitionNumber}</td>
+                         <td className="px-4 py-3">{row.RequisitionName}</td>
+                        <td className="px-4 py-3">{row.RequestedDate}</td>
+                        <td className="px-4 py-3">{row.RequisitionPurpose}</td>
+                        <td className="px-4 py-3">{row.LineStatus}</td>
+                          </tr>
+                        ))}
               </tbody>
             </table>
           </div>
