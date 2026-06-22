@@ -5,8 +5,11 @@ import PRMaterialRequirement from "./PRMaterialRequirement";
 import PRRequestApproved from "./components/PRRequestApproved";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import PRLineReport from "./components/PRLineReport";
 const stats = [];
 export default function DbsPurchaseRequest() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
   const [activeTab, setActiveTab] = useState("active");
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
@@ -46,6 +49,7 @@ export default function DbsPurchaseRequest() {
     //await getMaterials(row.RequisitionNumber);
     console.log("Clicked:", row.RequisitionNumber);
     navigate(`/app/PRLineReport/${row.RequisitionNumber}`);
+    <PRLineReport RequisitionNumber={row.RequisitionNumber} />
   };
 
   useEffect(() => {
@@ -58,7 +62,15 @@ export default function DbsPurchaseRequest() {
       project.RequisitionNumber?.toLowerCase().includes(search.toLowerCase())
     );
   });
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
 
+  const currentProjects = filteredProjects.slice(
+    indexOfFirstRow,
+    indexOfLastRow
+  );
+
+  const totalPages = Math.ceil(filteredProjects.length / rowsPerPage);
   return (
 
 
@@ -230,7 +242,7 @@ export default function DbsPurchaseRequest() {
                 <tbody className="divide-y divide-gray-100">
 
 
-                  {filteredProjects.map((row, index) => (
+                  {currentProjects.map((row, index) => (
                     <tr key={index}
                       className="cursor-pointer hover:bg-blue-50"
                       onClick={() => handleRowClick(row)}
@@ -241,22 +253,106 @@ export default function DbsPurchaseRequest() {
                       <td className="px-4 py-3 text-center">{row.ProjectId}</td>
                       <td className="px-4 py-3 text-center">{row.PreparerPersonnelNumber}</td>
                       <td className={`px-4 py-3 text-center ${row.LineStatus}`}>{row.LineStatus}</td>
-                      <td className="px-4 py-3 text-center">{<td className="px-4 py-3">
+                      <td className="px-4 py-3 text-center">
                         {new Date(row.RequestedDate)
                           .toLocaleDateString("en-GB")
                           .replace(/\//g, "-")}
-                      </td>}</td>
-                      <td className="px-4 py-3">{row.RequisitionPurpose}</td>
-                      <td className="px-4 py-3 text-center">{<td className="px-4 py-3">
-                        {new Date(row.DefaultAccountingDate)
-                          .toLocaleDateString("en-GB")
-                          .replace(/\//g, "-")}
-                      </td>}</td>
+                      </td>
+                      <td className="px-4 py-3 text-center">{row.RequisitionPurpose}</td>
+                      <td className="px-4 py-3 text-center">
+                        {row.DefaultAccountingDate
+                          ? new Date(row.DefaultAccountingDate)
+                            .toLocaleDateString("en-GB")
+                            .replace(/\//g, "-")
+                          : "-"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               )}
             </table>
+            <div className="flex items-center justify-between px-4 py-3 bg-white border-t">
+              <div className="text-sm text-gray-500">
+                Showing {indexOfFirstRow + 1} -
+                {Math.min(indexOfLastRow, filteredProjects.length)} of{" "}
+                {filteredProjects.length}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 border rounded disabled:opacity-50"
+                >
+                  Previous
+                </button>
+
+                {(() => {
+                  const pages = [];
+
+                  const addPage = (page) => {
+                    if (!pages.includes(page)) {
+                      pages.push(page);
+                    }
+                  };
+
+                  // First page
+                  addPage(1);
+
+                  // Left dots
+                  if (currentPage > 4) {
+                    pages.push("left");
+                  }
+
+                  // Current window
+                  for (
+                    let i = Math.max(2, currentPage - 1);
+                    i <= Math.min(totalPages - 1, currentPage + 1);
+                    i++
+                  ) {
+                    addPage(i);
+                  }
+
+                  // Right dots
+                  if (currentPage < totalPages - 3) {
+                    pages.push("right");
+                  }
+
+                  // Last page
+                  if (totalPages > 1) {
+                    addPage(totalPages);
+                  }
+
+                  return pages.map((page, index) =>
+                    page === "left" || page === "right" ? (
+                      <span key={`${page}-${index}`} className="px-2 text-slate-500">
+                        ...
+                      </span>
+                    ) : (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-3 py-1 rounded ${currentPage === page
+                            ? "bg-blue-600 text-white"
+                            : "border"
+                          }`}
+                      >
+                        {page}
+                      </button>
+                    )
+                  );
+                })()}
+                <button
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(p + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1 border rounded disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
