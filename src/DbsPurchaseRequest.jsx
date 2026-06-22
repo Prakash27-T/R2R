@@ -205,7 +205,6 @@ export default function DbsPurchaseRequest() {
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3 text-right">RequestedDate</th>
                   <th className="px-4 py-3 text-center">RequisitionPurpose</th>
-                  
                   <th className="px-4 py-3">Last Updated</th>
                 </tr>
               </thead>
