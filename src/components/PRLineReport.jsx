@@ -1,13 +1,13 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
-const materials = [];
+//const materials = [];
 export default function PRLineReport() {
   const [open, setOpen] = useState(true);
   const { RequisitionNumber } = useParams();
     const [materials, setMaterials] = useState([]);
     useEffect(() => {
-    getMaterials();
+    getMaterials(RequisitionNumber);
   }, []);
            const getMaterials = async (RequisitionNumber) => {
                try {
@@ -21,7 +21,7 @@ export default function PRLineReport() {
                  console.error(error);
                  }
                };
-
+ 
   if (!open) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-100">
@@ -29,12 +29,12 @@ export default function PRLineReport() {
           onClick={() => setOpen(true)}
           className="px-6 py-3 font-semibold text-white transition shadow bg-cyan-500 rounded-xl hover:bg-cyan-600"
         >
-          
+         
         </button>
       </div>
     );
   }
-  
+ 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 bg-slate-100">
       {/* Backdrop */}
@@ -42,10 +42,10 @@ export default function PRLineReport() {
         className="fixed inset-0 z-10 bg-black/30 backdrop-blur-sm"
         onClick={() => setOpen(false)}
       />
-
+ 
       {/* Modal */}
       <div className="relative z-20 bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] overflow-y-auto">
-
+ 
         {/* Header */}
         <div className="sticky top-0 z-10 px-6 pt-6 pb-4 bg-white border-b border-slate-100">
           <div className="flex items-start justify-between gap-4">
@@ -56,7 +56,7 @@ export default function PRLineReport() {
               <span className="px-3 py-1 text-xs font-semibold border rounded-full text-cyan-600 bg-cyan-50 border-cyan-200">
                 Approved
               </span>
-              
+             
               <button
                 onClick={() => setOpen(false)}
                 className="ml-2 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
@@ -70,9 +70,9 @@ export default function PRLineReport() {
             </div>
           </div>
         </div>
-
+ 
         <div className="px-6 py-5 space-y-5">
-
+ 
           {/* Requirement Details */}
           <section className="p-5 bg-slate-50 rounded-xl">
             <h2 className="mb-4 text-base font-semibold text-slate-700">Requirement Details</h2>
@@ -95,11 +95,11 @@ export default function PRLineReport() {
               </div>
             </div>
           </section>
-
+ 
           {/* Material Details */}
           <section className="p-5 bg-slate-50 rounded-xl">
             <h2 className="mb-4 text-base font-semibold text-slate-700">Material Details</h2>
-
+ 
             {/* Desktop Table */}
             <div className="hidden overflow-x-auto border rounded-lg md:block border-slate-200">
               <table className="min-w-full text-sm">
@@ -113,7 +113,7 @@ export default function PRLineReport() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-slate-100">
-                  {materials.map((m, i) => (
+                        {materials.map((m, i) => (
                     <tr key={i} className="transition hover:bg-slate-50">
                       <td className="px-4 py-3 font-medium text-slate-700">{m.name}</td>
                       <td className="px-4 py-3 text-slate-500">{m.category}</td>
@@ -127,10 +127,10 @@ export default function PRLineReport() {
                     </tr>
                   ))}
                 </tbody>
-                
+               
               </table>
             </div>
-
+ 
             {/* Mobile Cards */}
             <div className="space-y-3 md:hidden">
               {materials.map((m, i) => (
@@ -153,7 +153,7 @@ export default function PRLineReport() {
               </div>
             </div>
           </section>
-
+ 
           {/* Inventory Details */}
           <section className="p-5 bg-slate-50 rounded-xl">
             <h2 className="mb-4 text-base font-semibold text-slate-700">Inventory Details</h2>
@@ -172,7 +172,7 @@ export default function PRLineReport() {
               </div>
             </div>
           </section>
-
+ 
           {/* Action Buttons */}
           <div className="flex flex-col gap-3 pt-1 pb-2 sm:flex-row ">
             <button className="flex-1 px-8 py-3 text-sm font-semibold text-white transition shadow-sm sm:flex-none bg-rose-500 hover:bg-rose-600 active:bg-rose-700 rounded-xl shadow-rose-200">
@@ -182,7 +182,7 @@ export default function PRLineReport() {
               Create PO
             </button>
           </div>
-
+ 
           {/* Activity Timeline */}
           <section>
             <button className="flex items-center gap-2 text-sm font-semibold text-slate-700 group">
@@ -195,7 +195,7 @@ export default function PRLineReport() {
               No activity recorded yet.
             </div>
           </section>
-
+ 
         </div>
       </div>
     </div>

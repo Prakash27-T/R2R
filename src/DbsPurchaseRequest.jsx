@@ -11,11 +11,12 @@ export default function DbsPurchaseRequest() {
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
-  const[projects,setProjects]=useState([]);
+  const [projects, setProjects] = useState([]);
   const navigate = useNavigate();
   const loadProjects = async () => {
-    try {     
+    try {
 
       const response = await axios.get(
         "http://localhost:5000/api/PRList"
@@ -23,33 +24,40 @@ export default function DbsPurchaseRequest() {
 
       console.log(response.data);
       setProjects(response.data);
-
+      setLoading(false);
 
 
     }
-        catch (error) {
-          console.log("Error loading projects", error);
-        }
-    
-     };
-              const [materials, setMaterials] = useState([]);
+    catch (error) {
+      console.log("Error loading projects", error);
+    }
 
-                     const handleRowClick = async (row) => {
-                    //await getMaterials(row.RequisitionNumber);
-                      console.log("Clicked:", row.RequisitionNumber);
-                     navigate(`/app/PRLineReport/${row.RequisitionNumber}`);
-                    };
-     
-       useEffect(() => {
-      loadProjects();
-       }, []); 
-  
-      const filteredProjects = projects.filter((project) => {
-      return (
-       project.ProjectId?.toLowerCase().includes(search.toLowerCase()) ||
+  };
+  const [materials, setMaterials] = useState([]);
+
+  const handleRowClick = async (row) => {
+    const currentPR = row.RequisitionNumber;
+    console.log("Clicked PR:", currentPR);
+    const response = await axios.get(
+      `http://localhost:5000/api/PR_lines/${currentPR}`
+    );
+    console.log("Materials for selected PR:", response.data);
+    setMaterials(response.data.value);
+    //await getMaterials(row.RequisitionNumber);
+    console.log("Clicked:", row.RequisitionNumber);
+    navigate(`/app/PRLineReport/${row.RequisitionNumber}`);
+  };
+
+  useEffect(() => {
+    loadProjects();
+  }, []);
+
+  const filteredProjects = projects.filter((project) => {
+    return (
+      project.ProjectId?.toLowerCase().includes(search.toLowerCase()) ||
       project.RequisitionNumber?.toLowerCase().includes(search.toLowerCase())
-  );
-});
+    );
+  });
 
   return (
 
@@ -110,15 +118,15 @@ export default function DbsPurchaseRequest() {
         <div className="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
           {/* Table Header */}
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl font-bold text-slate-800">Purchase Requisitions</h2>
+            <h2 className="text-xl font-semibold text-slate-800">Purchase Requisitions</h2>
             <div className="flex items-center gap-3">
               {/* Tabs */}
               <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
                 <button
                   onClick={() => setActiveTab("active")}
                   className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab === "active"
-                      ? "bg-white text-blue-600 shadow-sm"
-                      : "text-slate-500 hover:text-slate-700"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
                     }`}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -129,8 +137,8 @@ export default function DbsPurchaseRequest() {
                 <button
                   onClick={() => setActiveTab("history")}
                   className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab === "history"
-                      ? "bg-white text-blue-600 shadow-sm"
-                      : "text-slate-500 hover:text-slate-700"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
                     }`}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -154,7 +162,7 @@ export default function DbsPurchaseRequest() {
                   />
                 ) : (
                   <button
-                    //onClick={() => setStep(2)}
+                   
                     onClick={() => setShowSearch(true)}
                     className="p-2 border rounded-lg border-slate-200 hover:bg-gray-50 text-slate-500"
                   >
@@ -181,14 +189,11 @@ export default function DbsPurchaseRequest() {
                 onClick={() => setShowPopup(true)}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white transition-colors bg-blue-700 rounded-lg shadow-sm hover:bg-blue-800">
                 <span className="text-lg leading-none">+</span>
-                New Purchase Requisition
+                New
               </button>
               {showPopup && (
                 <NewPurchaseReqst onClose={() => setShowPopup(false)} />
               )}
-
-
-
             </div>
 
           </div>
@@ -198,32 +203,56 @@ export default function DbsPurchaseRequest() {
             <table className="w-full text-sm text-left">
               <thead>
                 <tr className="text-xs font-semibold tracking-wide normal-case bg-gray-50 text-slate-500">
-                  <th className="px-4 py-3">RequisitionNumber</th>
-                  <th className="px-4 py-3"> Name</th>
-                  <th className="px-4 py-3"> Prepare</th>
-                  <th className="px-4 py-3">Project Id</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">RequestedDate</th>
-                  <th className="px-4 py-3 text-center">RequisitionPurpose</th>
-                  <th className="px-4 py-3">Last Updated</th>
+                  <th className="px-4 py-3">PR ID</th>
+                  <th className="w-1/4 px-4 py-3">Name</th>
+                  <th className="px-4 py-3 text-center">Project ID</th>
+                  <th className="px-4 py-3 text-center">Prepare</th>
+                  <th className="px-4 py-3 text-center">Status</th>
+                  <th className="px-4 py-3 text-center">Requested date</th>
+                  <th className="px-4 py-3 text-center">Purpose</th>
+                  <th className="px-4 py-3 text-center">Last updated</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredProjects.map((row, index) => (
-                   <tr key={index}
-                   className="cursor-pointer hover:bg-blue-50"
-                        onClick={() => handleRowClick(row)}
-                          
-                         >    
-                         <td className="px-4 py-3">{row.ProjectId}</td>
-                         <td className="px-4 py-3">{row.RequisitionNumber}</td>
-                         <td className="px-4 py-3">{row.RequisitionName}</td>
-                        <td className="px-4 py-3">{row.RequestedDate}</td>
-                        <td className="px-4 py-3">{row.RequisitionPurpose}</td>
-                        <td className="px-4 py-3">{row.LineStatus}</td>
-                          </tr>
-                        ))}
-              </tbody>
+              {loading ? (
+                <tbody className="divide-y divide-gray-100">
+                  <tr>
+                    <td colSpan={8} className="h-[300px]">
+                      <div className="flex items-center justify-center h-full">
+                        <div className="w-12 h-12 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              ) : (
+                <tbody className="divide-y divide-gray-100">
+
+
+                  {filteredProjects.map((row, index) => (
+                    <tr key={index}
+                      className="cursor-pointer hover:bg-blue-50"
+                      onClick={() => handleRowClick(row)}
+
+                    >
+                      <td className="px-4 py-3">{row.RequisitionNumber}</td>
+                      <td className="px-4 py-3">{row.RequisitionName}</td>
+                      <td className="px-4 py-3 text-center">{row.ProjectId}</td>
+                      <td className="px-4 py-3 text-center">{row.PreparerPersonnelNumber}</td>
+                      <td className={`px-4 py-3 text-center ${row.LineStatus}`}>{row.LineStatus}</td>
+                      <td className="px-4 py-3 text-center">{<td className="px-4 py-3">
+                        {new Date(row.RequestedDate)
+                          .toLocaleDateString("en-GB")
+                          .replace(/\//g, "-")}
+                      </td>}</td>
+                      <td className="px-4 py-3">{row.RequisitionPurpose}</td>
+                      <td className="px-4 py-3 text-center">{<td className="px-4 py-3">
+                        {new Date(row.DefaultAccountingDate)
+                          .toLocaleDateString("en-GB")
+                          .replace(/\//g, "-")}
+                      </td>}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              )}
             </table>
           </div>
         </div>
