@@ -124,7 +124,7 @@ export default function DbsPurchaseRequest() {
       <main className="max-w-screen-xl px-8 py-6 mx-auto">
         {/* Stats + Illustration */}
         <div className="flex items-start gap-5 mb-10">
-          <div className="grid flex-1 grid-cols-5 gap-4">
+          <div className="grid flex-1 grid-cols-4 gap-4">
             {stats.map((s) => (
               <div
                 key={s.label}
@@ -194,7 +194,7 @@ export default function DbsPurchaseRequest() {
                   />
                 ) : (
                   <button
-                    //onClick={() => setStep(2)}
+                   
                     onClick={() => setShowSearch(true)}
                     className="p-2 border rounded-lg border-slate-200 hover:bg-gray-50 text-slate-500"
                   >
@@ -226,9 +226,6 @@ export default function DbsPurchaseRequest() {
               {showPopup && (
                 <NewPurchaseReqst onClose={() => setShowPopup(false)} />
               )}
-
-
-
             </div>
 
           </div>
@@ -238,8 +235,8 @@ export default function DbsPurchaseRequest() {
             <table className="w-full text-sm text-left">
               <thead>
                 <tr className="text-xs font-semibold tracking-wide normal-case bg-gray-50 text-slate-500">
-                  <th className="px-4  py-3">PR ID</th>
-                  <th className="px-4 py-3 w-1/4">Name</th>
+                  <th className="px-4 py-3">PR ID</th>
+                  <th className="w-1/4 px-4 py-3">Name</th>
                   <th className="px-4 py-3 text-center">Project ID</th>
                   <th className="px-4 py-3 text-center">Prepare</th>
                   <th className="px-4 py-3 text-center">Status</th>
@@ -252,8 +249,8 @@ export default function DbsPurchaseRequest() {
                 <tbody className="divide-y divide-gray-100">
                   <tr>
                     <td colSpan={8} className="h-[300px]">
-                      <div className="flex justify-center items-center h-full">
-                        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                      <div className="flex items-center justify-center h-full">
+                        <div className="w-12 h-12 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
                       </div>
                     </td>
                   </tr>
