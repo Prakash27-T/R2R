@@ -86,8 +86,21 @@ app.get("/api/PR_lines/:RequisitionNumber", async (req, res) => {
     });
 
     console.log("RequisitionNumber:", RequisitionNumber);
+    const materials = response.data.value.map((item) => ({
+      AccountingDate: item.AccountingDate,
+      RequestedDate: item.RequestedDate,
+      ProductName: item.ProductName,
+      LineDescription: item.LineDescription,
+      ProcurementProductCategoryName: item.ProcurementProductCategoryName,
+      PurchasePriceQuantity: item.PurchasePriceQuantity,
+      RequestedQuantity: item.RequestedQuantity,
+      PurchaseUnitSymbol: item.PurchaseUnitSymbol,
+      RequestedPrice: item.RequestedPrice,
+      DeliveryAddressName: item.DeliveryAddressName,
+      ReceivingWarehouseId: item.ReceivingWarehouseId,ReceivingSiteId: item.ReceivingSiteId,    }));
 
-    res.json(response.data.value);
+    res.json(materials);
+    console.log("Materials:", materials);
   } catch (error) {
     console.error(
       "PR Lines Error:",
