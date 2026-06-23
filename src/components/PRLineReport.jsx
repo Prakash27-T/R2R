@@ -161,35 +161,35 @@ const totalPages = Math.ceil(materials.length / rowsPerPage);
                   ))}
                 </tbody>
               </table>
-              <div className="flex items-center justify-between px-4 py-3 bg-white border-t">
-  <div className="text-sm text-slate-500">
-    Showing {indexOfFirstRow + 1} -
-    {Math.min(indexOfLastRow, materials.length)} of{" "}
-    {materials.length}
-  </div>
+                  <div className="flex items-center justify-between px-4 py-3 bg-white border-t">
+                     <div className="text-sm text-slate-500">
+                         Showing {indexOfFirstRow + 1} -
+                         {Math.min(indexOfLastRow, materials.length)} of{" "}
+                         {materials.length}
+                       </div>
 
-  <div className="flex gap-2">
-    <button
-      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-      disabled={currentPage === 1}
-      className="px-3 py-1 border rounded disabled:opacity-50"
-    >
-      Previous
-    </button>
+                         <div className="flex gap-2">
+                          <button
+                              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                               disabled={currentPage === 1}
+                               className="px-3 py-1 border rounded disabled:opacity-50"
+                            >
+                                Previous
+                                </button>
 
-    <span className="px-3 py-1 text-sm">
-      Page {currentPage} of {totalPages}
-    </span>
+                              <span className="px-3 py-1 text-sm">
+                                Page {currentPage} of {totalPages}
+                                     </span>
 
-    <button
-      onClick={() =>
-        setCurrentPage((p) => Math.min(p + 1, totalPages))
-      }
-      disabled={currentPage === totalPages}
-      className="px-3 py-1 border rounded disabled:opacity-50"
-    >
-      Next
-    </button>
+                                <button
+                                     onClick={() =>
+                                        setCurrentPage((p) => Math.min(p + 1, totalPages))
+                                      }
+                                 disabled={currentPage === totalPages}
+                                className="px-3 py-1 border rounded disabled:opacity-50"
+                               >
+                              Next
+                            </button>
   </div>
 </div>
             </div>

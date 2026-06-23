@@ -97,7 +97,10 @@ app.get("/api/PR_lines/:RequisitionNumber", async (req, res) => {
       PurchaseUnitSymbol: item.PurchaseUnitSymbol,
       RequestedPrice: item.RequestedPrice,
       DeliveryAddressName: item.DeliveryAddressName,
-      ReceivingWarehouseId: item.ReceivingWarehouseId,ReceivingSiteId: item.ReceivingSiteId,    }));
+      RequisitionNumber: item.RequisitionNumber,
+      DeliveryAddressCity: item.DeliveryAddressCity,
+      ReceivingWarehouseId: item.ReceivingWarehouseId, ReceivingSiteId: item.ReceivingSiteId,
+    }));
 
     res.json(materials);
     console.log("Materials:", materials);
@@ -113,6 +116,30 @@ app.get("/api/PR_lines/:RequisitionNumber", async (req, res) => {
     });
   }
 });
+
+/* GET SITE ID FROM D365FO */
+app.get("/api/Sites_Id", async (req, res) => {
+  try {
+    console.log("started-sitesid")
+    const accessToken = await getAccessToken();
+
+    const response = await axios.get(
+      "https://shlt-dev01185046dcf29ca8dcdevaos.axcloud.dynamics.com/api/services/SHLTPurchaseRequisitionServiceHeaderGroup/SHLTPurchaseRequisitionHeaderService/getSites",
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/json",
+        }
+      }
+    );
+   console.log(response.data.value);
+  res.json(response.data.value);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+});
+
 
 const PORT = process.env.PORT || 5000;
 

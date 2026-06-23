@@ -104,7 +104,7 @@ export default function DbsPurchaseRequest() {
       <main className="max-w-screen-xl px-8 py-6 mx-auto">
         {/* Stats + Illustration */}
         <div className="flex items-start gap-5 mb-10">
-          <div className="grid flex-1 grid-cols-5 gap-4">
+          <div className="grid flex-1 grid-cols-4 gap-4">
             {stats.map((s) => (
               <div
                 key={s.label}
