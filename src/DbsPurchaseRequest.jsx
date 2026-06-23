@@ -18,6 +18,24 @@ export default function DbsPurchaseRequest() {
   const [filter, setFilter] = useState("All");
   const [projects, setProjects] = useState([]);
   const navigate = useNavigate();
+  const statusStyles = {
+  Draft:
+    "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-md",
+
+  InReview:
+    "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md",
+
+  Approved:
+    "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-md",
+
+  Rejected:
+    "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-md",
+
+  Closed:
+    "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-slate-700 bg-slate-100 border border-slate-200 rounded-md",
+    Cancelled:
+  "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-md"
+};
   const loadProjects = async () => {
     try {
 
@@ -39,17 +57,19 @@ export default function DbsPurchaseRequest() {
   const [materials, setMaterials] = useState([]);
 
   const handleRowClick = async (row) => {
-    const currentPR = row.RequisitionNumber;
-    console.log("Clicked PR:", currentPR);
     const response = await axios.get(
-      `http://localhost:5000/api/PR_lines/${currentPR}`
+      `http://localhost:5000/api/PR_lines/${row.RequisitionNumber}`
     );
     console.log("Materials for selected PR:", response.data);
     setMaterials(response.data.value);
     //await getMaterials(row.RequisitionNumber);
     console.log("Clicked:", row.RequisitionNumber);
-    navigate(`/app/PRLineReport/${row.RequisitionNumber}`);
-    <PRLineReport RequisitionNumber={row.RequisitionNumber} />
+    console.log("Clicked:", row.RequisitionName);
+    navigate(`/app/PRLineReport/${row.RequisitionNumber}`, {
+  state: {
+    RequisitionName: row.RequisitionName,
+  },
+});
   };
 
   useEffect(() => {
@@ -225,7 +245,7 @@ export default function DbsPurchaseRequest() {
                   <th className="px-4 py-3 text-center">Status</th>
                   <th className="px-4 py-3 text-center">Requested date</th>
                   <th className="px-4 py-3 text-center">Purpose</th>
-                  <th className="px-4 py-3 text-center">Last updated</th>
+                  <th className="px-4 py-3 text-center">Accounting date</th>
                 </tr>
               </thead>
               {loading ? (
@@ -252,7 +272,11 @@ export default function DbsPurchaseRequest() {
                       <td className="px-4 py-3">{row.RequisitionName}</td>
                       <td className="px-4 py-3 text-center">{row.ProjectId}</td>
                       <td className="px-4 py-3 text-center">{row.PreparerPersonnelNumber}</td>
-                      <td className={`px-4 py-3 text-center ${row.LineStatus}`}>{row.LineStatus}</td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={statusStyles[row.LineStatus]}>
+                          {row.LineStatus}
+                        </span>
+                      </td>
                       <td className="px-4 py-3 text-center">
                         {new Date(row.RequestedDate)
                           .toLocaleDateString("en-GB")
@@ -333,8 +357,8 @@ export default function DbsPurchaseRequest() {
                         key={page}
                         onClick={() => setCurrentPage(page)}
                         className={`px-3 py-1 rounded ${currentPage === page
-                            ? "bg-blue-600 text-white"
-                            : "border"
+                          ? "bg-blue-600 text-white"
+                          : "border"
                           }`}
                       >
                         {page}

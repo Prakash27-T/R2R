@@ -1,4 +1,4 @@
-import { useParams, useNavigate  } from "react-router-dom";
+import { useParams, useNavigate, useLocation  } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 export default function PRLineReport() {
@@ -9,16 +9,20 @@ export default function PRLineReport() {
   const [currentPage, setCurrentPage] = useState(1);
 const rowsPerPage = 8;
   const { RequisitionNumber } = useParams();
+    const location = useLocation();
+
+  const RequisitionName = location.state?.RequisitionName;
   useEffect(() => {
     getMaterials(RequisitionNumber);
   }, [RequisitionNumber]);
+  console.log("name:", RequisitionName);
   const getMaterials = async (RequisitionNumber) => {
     try {
       console.log("Selected PR:", RequisitionNumber);
       const response = await axios.get(
         `http://localhost:5000/api/PR_lines/${RequisitionNumber}`
       );
-      console.log("materials:", response.data);
+      // console.log("materials:", response.data);
       setMaterials(response?.data || []);
       const prDetails = materials?.[0] || {};
 
@@ -26,7 +30,7 @@ const rowsPerPage = 8;
       console.error(error);
     }
   };
-  console.log("PR Details:", prDetails);
+  // console.log("PR Details:", prDetails);
 
   const indexOfLastRow = currentPage * rowsPerPage;
 const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -52,7 +56,7 @@ const totalPages = Math.ceil(materials.length / rowsPerPage);
         <div className="sticky top-0 z-10 px-6 pt-6 pb-4 bg-white border-b border-slate-100">
           <div className="flex items-start justify-between gap-4">
             <h1 className="text-xl font-bold leading-tight sm:text-2xl text-slate-800">
-              PR-109 Maintenance Spare Parts Request
+               {`${RequisitionNumber} - ${RequisitionName}`}
             </h1>
             <div className="flex items-center gap-2 shrink-0">
               <span className="px-3 py-1 text-xs font-semibold border rounded-full text-cyan-600 bg-cyan-50 border-cyan-200">
@@ -281,8 +285,8 @@ const totalPages = Math.ceil(materials.length / rowsPerPage);
                 <p className="text-xs text-slate-400 font-medium uppercase tracking-wide mb-0.5">
                   Location
                 </p>
-                <p className="text-sm text-slate-700">
-                  {prDetails.DeliveryAddressName || "—"}
+                <p className="text-sm font-semibold text-slate-700">
+                  {prDetails.DeliveryAddressCity || "—"}
                 </p>
               </div>
             </div>

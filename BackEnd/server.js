@@ -97,6 +97,8 @@ app.get("/api/PR_lines/:RequisitionNumber", async (req, res) => {
       PurchaseUnitSymbol: item.PurchaseUnitSymbol,
       RequestedPrice: item.RequestedPrice,
       DeliveryAddressName: item.DeliveryAddressName,
+      RequisitionNumber: item.RequisitionNumber,
+      DeliveryAddressCity: item.DeliveryAddressCity,
       ReceivingWarehouseId: item.ReceivingWarehouseId,ReceivingSiteId: item.ReceivingSiteId,    }));
 
     res.json(materials);
