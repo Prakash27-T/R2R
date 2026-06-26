@@ -183,9 +183,9 @@ app.get("/api/Sites_Id", async (req, res) => {
   try {
     console.log("started-sitesid")
     const accessToken = await getAccessToken();
-
+     console.log("Token received");
     const response = await axios.get(
-      "https://shlt-dev01185046dcf29ca8dcdevaos.axcloud.dynamics.com/api/services/SHLTPurchaseRequisitionServiceHeaderGroup/SHLTPurchaseRequisitionHeaderService/getSites",
+      process.env.PR_SITEID,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -193,8 +193,16 @@ app.get("/api/Sites_Id", async (req, res) => {
         }
       }
     );
-   console.log(response.data.value);
-  res.json(response.data.value);
+     console.log(response.data.value);
+      const sites = response.data.value.map(site => ({
+      SiteId: site.SiteId,
+      SiteName: site.SiteName
+    }));
+
+    res.json(sites);
+
+
+    
   } catch (error) {
     console.log(error);
     res.status(500).json(error);

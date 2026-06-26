@@ -10,7 +10,7 @@ export default function NewPurchaseReqst({ onClose }) {
   const [purpose, setPurpose] = useState("");
   const [showPopup, setShowPopup] = useState(false);
   const [dateError, setDateError] = useState("");
-  const [site, setSite] = useState("");
+  const [selectedSite, setSelectedSite] = useState("");
   const [warehouse, setWarehouse] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [sites, setSites] = useState([]);
@@ -20,7 +20,7 @@ export default function NewPurchaseReqst({ onClose }) {
     setReqDate(today);
     setAccDate(today);
     getSites();
-    
+
   }, []);
   const validateDate = (selectedDate) => {
     const today = new Date().toISOString().split("T")[0];
@@ -34,15 +34,21 @@ export default function NewPurchaseReqst({ onClose }) {
 
   };
   const getSites = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5000/api/Sites_Id"
+      );
+      console.log(response.data);
+      //console.log("Sites Response:", response.data.value);
+      setSites(response.data);
 
-    const response = await axios.get(
-      "http://localhost:5000/api/Sites_Id"
-    );
-      console.log("API Response:", response.data);
-    console.log("API Response Value:", response.data.value);
-    setSites(response.data);
+    } catch (error) {
+      console.error("Error loading sites:", error);
+      setSites([]);
+    }
   };
-   // console.log(sites)
+  console.log("sites =", sites);
+ 
 
   return (
 
@@ -107,6 +113,7 @@ export default function NewPurchaseReqst({ onClose }) {
               <input
                 type="date"
                 value={accDate}
+                min={new Date().toISOString().split("T")[0]}
                 onChange={(e) => {
                   const value = e.target.value;
                   setAccDate(value);
@@ -124,22 +131,28 @@ export default function NewPurchaseReqst({ onClose }) {
             </label>
             <div className="relative flex-1 min-w-[138px]">
               <select
-                value={site}
-                onChange={(e) => setSite(e.target.value)}
+                value={selectedSite}
+                onChange={(e) => setSelectedSite(e.target.value)}
                 className="w-full px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
               >
-                <option>Select Site</option>
-                {
-                  Array.isArray(sites) &&
-                  sites.map((site) => (
+
+                <option value="">Select Site</option>
+
+                {sites?.map((site) => (
                   <option
-                    key={site.Sites_Id}
-                    value={site.Sites_Id}
+                    key={site.SiteId}
+                    value={site.SiteId}
+                   
                   >
-                    {site.Sites_Id}
+                    {selectedSite === site.SiteId
+                    ? site.SiteId
+                     : `${site.SiteId} - ${site.SiteName}`}
+
                   </option>
                 ))}
               </select>
+              
+
             </div>
             <label className="self-center text-sm font-medium text-gray-700 whitespace-nowrap">
               WarehouseId
@@ -152,6 +165,37 @@ export default function NewPurchaseReqst({ onClose }) {
               className="w-full px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
             >
               <option value="">Select Warehouse </option>
+            </select>
+
+          </div>
+          {/* ProjectId and leagal entity */}
+          <div className="flex flex-1 gap-2 py-3 flex-rowrap flex- sm:flex-row">
+            <label className="py-2 text-sm font-medium text-gray-700 sm:w-40 shrink-0">
+              Proejct Id
+            </label>
+            <div className="relative flex-1 min-w-[138px]">
+              <select
+                value={selectedSite}
+                onChange={(e) => setSelectedSite(e.target.value)}
+                className="w-full px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
+              >
+
+                <option value="">Select ProjectId</option>
+
+
+              </select>
+            </div>
+            <label className="self-center text-sm font-medium text-gray-700 whitespace-nowrap">
+              LegalEntity
+            </label>
+
+            <select
+
+              value={warehouse}
+              onChange={(e) => setWarehouse(e.target.value)}
+              className="w-full px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
+            >
+              <option value="">Select Entity </option>
             </select>
 
           </div>
