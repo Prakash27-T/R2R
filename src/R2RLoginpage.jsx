@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink, Outlet } from "react-router-dom";
 import app from "./App";
+import axios from "axios";
 import AdminPortal from "./components/AdminPortal";
 export default function R2RLoginpage() {
   const navigate = useNavigate();
 
-  const [userId, setUserId] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const isValid = password.length >= 8;
   const isTouched = password.length > 0;
@@ -14,72 +15,42 @@ export default function R2RLoginpage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    if(userId=== "admin" && password==="123"){
+  const handleLogin = async () => {
+
+    if (email === "admin" && password === "123") {
       navigate("/admin-portal");
     }
-    else{
-      navigate("/app");
+    else {
+
+      try {
+        const { data } = await axios.post(
+          "http://localhost:5000/login",
+          {
+            username: email,
+            password,
+          }
+        );
+
+        if (data.success) {
+          // Store logged-in user
+          localStorage.setItem("user", JSON.stringify(data.user));
+
+          console.log("Stored User:", data.user);
+
+          // Navigate based on status
+          if (data.status === "Yes") {
+            navigate("/app");
+          } else {
+            setError(`User status: ${data.status}`);
+          }
+        } else {
+          setError(data.message);
+        }
+      } catch (err) {
+        console.error(err);
+        setError("error: " + err.response?.data?.message || "Server error");
+      }
     }
-    // try {
-    //   if (!UserID || !password) {
-    //     if (!UserID)
-    //       setError("Please enter UserID.");
-    //     else
-    //       setError("Please enter Password.");
-
-    //     setLoading(false);
-    //     return;
-    //   }
-
-    //   const res = await axios.post(
-    //     `${API}/api/auth/login`,
-    //     {
-    //       UserID,
-    //       password,
-    //     }
-    //   );
-
-    //   console.log("Login Response:", res.data);
-
-    //   if (res.data["Login status"] === "YES") {
-
-    //     localStorage.setItem("usermail", UserID);
-    //     localStorage.setItem("password", password);
-    //     localStorage.setItem(
-    //       "username",
-    //       res.data["User Name"]
-    //     );
-
-    //     localStorage.setItem(
-    //       "RecId",
-    //       res.data["User RecId"]
-    //     );
-
-    //     console.log(
-    //       "Stored RecId:",
-    //       localStorage.getItem("RecId")
-    //     );
-
-    //     onLogin(res.data);
-    //   } else {
-    //     setError(
-    //       "Invalid UserID or Password"
-    //     );
-    //   }
-
-    // } catch (error) {
-    //   console.error(
-    //     "Login error:",
-    //     error
-    //   );
-    //   setError("SERVER ERROR");
-    // } finally {
-    //   setLoading(false);
-    // }
   };
 
   return (
@@ -99,17 +70,17 @@ export default function R2RLoginpage() {
 
         {/* Form */}
         <form>
-          {/* User ID */}
+          {/* Email */}
           <div className="mb-5">
             <label className="block mb-2 text-sm font-medium text-gray-700">
-              User ID
+              Email
             </label>
 
             <input
-              type="text"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              placeholder="Enter User ID"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter Email"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -193,7 +164,7 @@ export default function R2RLoginpage() {
           {/* Login Button */}
           <button
             type="button"
-            onClick={handleSubmit}
+            onClick={handleLogin}
 
             className="w-full py-3 font-semibold text-white transition bg-blue-600 rounded-lg hover:bg-blue-700"
           >

@@ -28,7 +28,67 @@ async function getAccessToken() {
 
   return tokenResponse.data.access_token;
 }
+// login 
 
+
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  console.log("Login Request:", { username, password });
+
+  try {
+    const accessToken = await getAccessToken();
+
+    // Call D365 Login API
+    const apiResponse = await axios.get(process.env.LOGIN, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+      },
+    });
+
+    const users = apiResponse.data.value;
+
+    // Find user by email/username
+    const user = users.find(
+      (u) => u.Email === username
+    );
+
+    // User not found
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Password validation
+    if (user.Password !== password) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid password",
+      });
+    }
+
+    // Remove password before sending to frontend
+    const { Password, ...safeUser } = user;
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      status: safeUser.Status,
+      user: safeUser,
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+});
 /* PR Header List */
 app.get("/api/PRList", async (req, res) => {
   try {
@@ -141,6 +201,40 @@ app.get("/api/Sites_Id", async (req, res) => {
   }
 });
 
+
+/* PO Header List */
+app.get("/api/POList", async (req, res) => {
+  try {
+    const accessToken = await getAccessToken();
+
+    const response = await axios.get(process.env.PO_HEADER, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+      },
+    });
+
+    const POList = response.data.value.map((item) => ({
+      PurchaseOrderNumber: item.PurchaseOrderNumber,
+      PurchaseOrderName: item.PurchaseOrderName,
+      ProjectId: item.ProjectId,
+      DocumentApprovalStatus: item.DocumentApprovalStatus,
+      PurchaseOrderStatus: item.PurchaseOrderStatus,
+    }));
+
+    res.json(POList);
+  } catch (error) {
+    console.error(
+      "PO List Error:",
+      error.response?.data || error.message
+    );
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 

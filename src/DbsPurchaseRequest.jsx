@@ -17,25 +17,31 @@ export default function DbsPurchaseRequest() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
   const [projects, setProjects] = useState([]);
+  const [prdetails, setPrdetails] = useState({
+    totalPR: 0,
+    draftPR: 0,
+    approvedPR: 0,
+    closedPR: 0,
+  });
   const navigate = useNavigate();
   const statusStyles = {
-  Draft:
-    "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-md",
+    Draft:
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-md",
 
-  InReview:
-    "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md",
+    InReview:
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md",
 
-  Approved:
-    "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-md",
+    Approved:
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-md",
 
-  Rejected:
-    "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-md",
+    Rejected:
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-md",
 
-  Closed:
-    "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-slate-700 bg-slate-100 border border-slate-200 rounded-md",
+    Closed:
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-slate-700 bg-slate-100 border border-slate-200 rounded-md",
     Cancelled:
-  "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-md"
-};
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-md"
+  };
   const loadProjects = async () => {
     try {
 
@@ -46,8 +52,20 @@ export default function DbsPurchaseRequest() {
       console.log(response.data);
       setProjects(response.data);
       setLoading(false);
-
-
+      console.log("Projects loaded successfully");
+      setPrdetails({
+        totalPR: response.data.length,
+        draftPR: response.data.filter(
+          (pr) => pr.LineStatus === "Draft"
+        ).length,
+        approvedPR: response.data.filter(
+          (pr) => pr.LineStatus === "Approved"
+        ).length,
+        closedPR: response.data.filter(
+          (pr) => pr.LineStatus === "Closed"
+        ).length,
+      });
+      console.log("PR Details:", prdetails);
     }
     catch (error) {
       console.log("Error loading projects", error);
@@ -66,10 +84,10 @@ export default function DbsPurchaseRequest() {
     console.log("Clicked:", row.RequisitionNumber);
     console.log("Clicked:", row.RequisitionName);
     navigate(`/app/PRLineReport/${row.RequisitionNumber}`, {
-  state: {
-    RequisitionName: row.RequisitionName,
-  },
-});
+      state: {
+        RequisitionName: row.RequisitionName,
+      },
+    });
   };
 
   useEffect(() => {
@@ -82,6 +100,19 @@ export default function DbsPurchaseRequest() {
       project.RequisitionNumber?.toLowerCase().includes(search.toLowerCase())
     );
   });
+
+  const StatCard = ({ number, label, description, color, icon }) => (
+    <div className={`rounded-2xl p-5 flex flex-col gap-2 flex-wrap min-w-[150px] ${color}`}>
+      <div className="flex items-start justify-between">
+        <span className="text-4xl font-extrabold leading-none tracking-tight" style={{ color: "inherit" }}>
+          {String(number).padStart(2, "0")}
+        </span>
+        <span className="text-2xl opacity-60">{icon}</span>
+      </div>
+      <p className="text-sm font-bold leading-tight">{label}</p>
+      <p className="text-xs leading-snug opacity-70">{description}</p>
+    </div>
+  );
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
 
@@ -98,7 +129,7 @@ export default function DbsPurchaseRequest() {
     <div className="min-h-screen font-sans bg-gray-50">
       {/* Navbar */}
       <header className="flex items-center justify-between px-8 py-4 bg-white border-b border-gray-100">
-        <div className="flex flex-col leading-none">
+        <div className="flex flex-col leading-none ml-8 sm:ml-0">
           <span className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600">
             R2R
           </span>
@@ -121,113 +152,207 @@ export default function DbsPurchaseRequest() {
         </div>
       </header>
 
-      <main className="max-w-screen-xl px-8 py-6 mx-auto">
+      <main className="max-w-screen-xl px-8 py-6 mx-auto  space-y-6">
         {/* Stats + Illustration */}
-        <div className="flex items-start gap-5 mb-10">
-          <div className="grid flex-1 grid-cols-4 gap-4">
-            {stats.map((s) => (
-              <div
-                key={s.label}
-                className={`rounded-2xl border ${s.border} ${s.bg} p-5 flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow`}
-              >
-                <div className="flex items-start justify-between">
-                  <span className={`text-5xl font-extrabold leading-none ${s.color}`}>{s.count}</span>
-                  {s.icon}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold leading-snug text-slate-700">{s.label}</p>
-                  <p className="mt-1 text-xs text-slate-400">{s.sub}</p>
-                </div>
-              </div>
-            ))}
+        <div className="flex flex-col items-center gap-6 p-6 bg-white shadow-sm rounded-3xl lg:flex-row">
+          <div className="grid grid-cols-1 min-[425px]:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <StatCard
+              number={prdetails.totalPR}
+              label="Total Purchase Requisitions"
+              description="Active purchase requisition cases in progress."
+              color="text-indigo-500 bg-indigo-50"
+              icon="🗂️"
+            />
+
+            <StatCard
+              number={prdetails.approvedPR}
+              label="Approved Purchase Requisitions"
+              description="Purchase requisition cases approved for processing."
+              color="text-green-500 bg-green-50"
+              icon="✅"
+            />
+
+            <StatCard
+              number={prdetails.closedPR}
+              label="Purchase Requisition Cases Closed"
+              description="Purchase requisition cases converted into POs."
+              color="text-cyan-500 bg-cyan-50"
+              icon="📋"
+            />
+
+            <StatCard
+              number={prdetails.draftPR}
+              label="Draft Cases"
+              description="Draft cases without PO creation."
+              color="text-amber-500 bg-amber-50"
+              icon="🕐"
+            />
           </div>
-
           {/* Illustration placeholder */}
-
+          <div className="items-center justify-center hidden w-56 h-40 lg:flex shrink-0">
+            <svg viewBox="0 0 200 140" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="80" y="10" width="110" height="80" rx="8" fill="white" stroke="#e2e8f0" strokeWidth="2" />
+              <circle cx="93" cy="23" r="3" fill="#f87171" />
+              <circle cx="103" cy="23" r="3" fill="#fbbf24" />
+              <circle cx="113" cy="23" r="3" fill="#34d399" />
+              <rect x="90" y="35" width="85" height="8" rx="3" fill="#67e8f9" />
+              <rect x="90" y="49" width="70" height="8" rx="3" fill="#67e8f9" />
+              <rect x="90" y="63" width="55" height="8" rx="3" fill="#f87171" opacity="0.6" />
+              <rect x="140" y="63" width="25" height="8" rx="3" fill="#fbbf24" opacity="0.8" />
+              <circle cx="55" cy="100" width="60" height="60" r="30" fill="none" stroke="#e2e8f0" strokeWidth="2" />
+              <rect x="30" y="78" width="55" height="45" rx="6" fill="white" stroke="#e2e8f0" strokeWidth="2" />
+              <rect x="38" y="86" width="12" height="12" rx="2" fill="#818cf8" />
+              <rect x="38" y="102" width="30" height="5" rx="2" fill="#e2e8f0" />
+              <rect x="38" y="110" width="20" height="5" rx="2" fill="#e2e8f0" />
+              <rect x="90" y="78" width="40" height="12" rx="3" fill="#f87171" opacity="0.8" />
+            </svg>
+          </div>
         </div>
 
         {/* Table Section */}
         <div className="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
           {/* Table Header */}
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl font-semibold text-slate-800">Purchase Requisitions</h2>
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-4 mb-5 lg:flex-row lg:items-center lg:justify-between">
+
+            {/* Title */}
+            <h2 className="text-xl font-semibold text-slate-800">
+              Purchase Requisitions
+            </h2>
+
+            {/* Right Section */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+
               {/* Tabs */}
-              <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
+              <div className="flex w-full p-1 bg-gray-100 rounded-lg sm:w-auto">
                 <button
                   onClick={() => setActiveTab("active")}
-                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab === "active"
-                    ? "bg-white text-blue-600 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                  className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "active"
+                      ? "bg-white text-blue-600 shadow-sm"
+                      : "text-slate-500 hover:text-slate-700"
                     }`}
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                   Active PR
                 </button>
+
                 <button
                   onClick={() => setActiveTab("history")}
-                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab === "history"
-                    ? "bg-white text-blue-600 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                  className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "history"
+                      ? "bg-white text-blue-600 shadow-sm"
+                      : "text-slate-500 hover:text-slate-700"
                     }`}
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                   PR History
                 </button>
               </div>
 
-              {/* Search */}
-              <div className="relative">
-                {showSearch ? (
-                  <input
-                    autoFocus
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    onBlur={() => !search && setShowSearch(false)}
-                    placeholder="Search..."
-                    className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 w-44"
-                  />
-                ) : (
-                  <button
-                   
-                    onClick={() => setShowSearch(true)}
-                    className="p-2 border rounded-lg border-slate-200 hover:bg-gray-50 text-slate-500"
+              {/* Actions */}
+              <div className="flex items-center w-full gap-2 sm:w-auto">
+
+                {/* Search */}
+                <div className="relative flex-1 sm:flex-none">
+                  {showSearch ? (
+                    <input
+                      autoFocus
+                      type="text"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      onBlur={() => !search && setShowSearch(false)}
+                      placeholder="Search..."
+                      className="w-full sm:w-44 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    />
+                  ) : (
+                    <button
+                      onClick={() => setShowSearch(true)}
+                      className="p-2 border rounded-lg border-slate-200 hover:bg-gray-50 text-slate-500"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+
+                {/* Filter */}
+                <button className="flex items-center justify-center p-2 border rounded-lg border-slate-200 hover:bg-gray-50 text-slate-500">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
                   >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </button>
-                )}
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"
+                    />
+                  </svg>
+
+                  <svg
+                    className="w-3 h-3 ml-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {/* New Button */}
+                <button
+                  onClick={() => setShowPopup(true)}
+                  className="flex items-center justify-center gap-2 px-4 py-2 ml-auto text-sm font-semibold text-white bg-blue-700 rounded-lg shadow-sm hover:bg-blue-800"
+                >
+                  <span className="text-lg leading-none">+</span>
+                  New
+                </button>
               </div>
 
-              {/* Filter */}
-              <button className="flex items-center gap-1 p-2 border rounded-lg border-slate-200 hover:bg-gray-50 text-slate-500">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
-                </svg>
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              {/* New PR Button */}
-              <button
-
-                onClick={() => setShowPopup(true)}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white transition-colors bg-blue-700 rounded-lg shadow-sm hover:bg-blue-800">
-                <span className="text-lg leading-none">+</span>
-                New
-              </button>
               {showPopup && (
                 <NewPurchaseReqst onClose={() => setShowPopup(false)} />
               )}
             </div>
-
           </div>
 
           {/* Table */}
