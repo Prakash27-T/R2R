@@ -15,27 +15,28 @@ export default function DbsPurchaseRequest() {
   const [showSearch, setShowSearch] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showFilter, setShowFilter] = useState(false);
   const [filter, setFilter] = useState("All");
   const [projects, setProjects] = useState([]);
   const navigate = useNavigate();
   const statusStyles = {
-  Draft:
-    "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-md",
+    Draft:
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-md",
 
-  InReview:
-    "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md",
+    InReview:
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md",
 
-  Approved:
-    "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-md",
+    Approved:
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-md",
 
-  Rejected:
-    "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-md",
+    Rejected:
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-md",
 
-  Closed:
-    "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-slate-700 bg-slate-100 border border-slate-200 rounded-md",
+    Closed:
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-slate-700 bg-slate-100 border border-slate-200 rounded-md",
     Cancelled:
-  "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-md"
-};
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-md"
+  };
   const loadProjects = async () => {
     try {
 
@@ -66,10 +67,10 @@ export default function DbsPurchaseRequest() {
     console.log("Clicked:", row.RequisitionNumber);
     console.log("Clicked:", row.RequisitionName);
     navigate(`/app/PRLineReport/${row.RequisitionNumber}`, {
-  state: {
-    RequisitionName: row.RequisitionName,
-  },
-});
+      state: {
+        RequisitionName: row.RequisitionName,
+      },
+    });
   };
 
   useEffect(() => {
@@ -77,10 +78,15 @@ export default function DbsPurchaseRequest() {
   }, []);
 
   const filteredProjects = projects.filter((project) => {
-    return (
+    const matchesSearch =
       project.ProjectId?.toLowerCase().includes(search.toLowerCase()) ||
-      project.RequisitionNumber?.toLowerCase().includes(search.toLowerCase())
-    );
+      project.RequisitionNumber?.toLowerCase().includes(search.toLowerCase());
+
+    const matchesStatus =
+      filter === "All" ||
+      project.LineStatus === filter;
+
+    return matchesSearch && matchesStatus;
   });
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -91,6 +97,13 @@ export default function DbsPurchaseRequest() {
   );
 
   const totalPages = Math.ceil(filteredProjects.length / rowsPerPage);
+  const statusOptions = [
+    "All",
+    "Draft",
+    "Approved",
+    "Closed",
+    "Cancelled"
+  ];
   return (
 
 
@@ -194,7 +207,7 @@ export default function DbsPurchaseRequest() {
                   />
                 ) : (
                   <button
-                   
+
                     onClick={() => setShowSearch(true)}
                     className="p-2 border rounded-lg border-slate-200 hover:bg-gray-50 text-slate-500"
                   >
@@ -203,19 +216,43 @@ export default function DbsPurchaseRequest() {
                     </svg>
                   </button>
                 )}
+
               </div>
 
               {/* Filter */}
-              <button className="flex items-center gap-1 p-2 border rounded-lg border-slate-200 hover:bg-gray-50 text-slate-500">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
-                </svg>
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setShowFilter(!showFilter)}
 
-              {/* New PR Button */}
+                  className="flex items-center gap-1 p-2 border rounded-lg border-slate-200 hover:bg-gray-50 text-slate-500">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+                  </svg>
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+
+                </button>
+                {showFilter && (
+                    <div className="absolute z-50 w-40 mt-2 bg-white border rounded-lg shadow-lg right-3">
+
+                    {statusOptions.map((status) => (
+                      <div
+                        key={status}
+                        className="p-2 cursor-pointer hover:bg-gray-100"
+                        onClick={() => {
+                          setFilter(status);
+                          setShowFilter(false);
+                        }}
+                      >
+                        {status}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Create New PR Button*/}
               <button
 
                 onClick={() => setShowPopup(true)}
