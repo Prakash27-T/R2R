@@ -51,7 +51,7 @@ app.get("/api/PRList", async (req, res) => {
       PreparerPersonnelNumber: item.PreparerPersonnelNumber,
       DefaultAccountingDate: item.DefaultAccountingDate,
     }));
-
+       console.timeEnd("PRList API");
     res.json(PRList);
   } catch (error) {
     console.error(
@@ -123,7 +123,7 @@ app.get("/api/Sites_Id", async (req, res) => {
   try {
     console.log("started-sitesid")
     const accessToken = await getAccessToken();
-     console.log("Token received");
+    console.log("Token received");
     const response = await axios.get(
       process.env.PR_SITEID,
       {
@@ -133,8 +133,8 @@ app.get("/api/Sites_Id", async (req, res) => {
         }
       }
     );
-     console.log(response.data.value);
-      const sites = response.data.value.map(site => ({
+    console.log(response.data.value);
+    const sites = response.data.value.map(site => ({
       SiteId: site.SiteId,
       SiteName: site.SiteName
     }));
@@ -142,13 +142,126 @@ app.get("/api/Sites_Id", async (req, res) => {
     res.json(sites);
 
 
-    
-  } catch (error) {
-    console.log(error);
-    res.status(500).json(error);
+
+  } catch (err) {
+
+    console.error("SITE API ERROR");
+
+    console.error(err.response?.status);
+
+    console.error(err.response?.data);
+
+    console.error(err.message);
+
+    res.status(500).json({
+        message: err.message,
+        status: err.response?.status,
+        error: err.response?.data
+    });
+
+}
+});
+/* Warehouse Id */
+app.get("/api/WH_Id", async (req, res) => {
+  try {
+    const SiteId = req.query.SiteId;
+    console.log("Selected Site:", SiteId);
+    const accessToken = await getAccessToken();
+
+    const response = await axios.post(
+
+      process.env.WAREHOUSE_ID,
+      {
+        _request: {
+          SiteId: SiteId
+        }
+      },
+
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        }
+      }
+
+    );
+    //console.log(process.env.WAREHOUSE_ID);
+    console.log(response.data);
+    const warehouse = response.data.map(WR => ({
+      warehouseId: WR.warehouseId,
+      warehouseName: WR.warehouseName
+    }));
+    res.json(warehouse);
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.status(500).json({
+      message: "Error"
+    });
+
   }
 });
+/* Legal Entity */
+app.get("/api/Legal_entity", async (req, res) => {
+  try {
 
+    const accessToken = await getAccessToken();
+    // console.log("Token received");
+    const response = await axios.get(
+      process.env.LEGAL_ENTITY,
+
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/json",
+        },
+      }
+    );
+    console.log(response.data.value);
+    const Entity = response.data.value.map(item => ({
+      LegalEntityId: item.LegalEntityId,
+      Name: item.Name
+    }));
+    
+    res.json(response.data);
+
+
+
+  } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            error: err.message
+        });
+    }
+});
+{/* Api Projrct id */ }
+app.get("/api/ProjectId", async (req, res) => {
+  try {
+    const LegalEntityId = req.query.LegalEntityId;
+
+    console.log("Selected Entity:", LegalEntityId);
+
+    const accessToken = await getAccessToken();
+
+    const response = await axios.get(
+      `${process.env.PROJECT_ID}?$filter=dataAreaId eq '${LegalEntityId}'`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    res.json(response.data.value);
+  } catch (err) {
+    console.error(err.response?.data || err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 

@@ -39,21 +39,23 @@ export default function DbsPurchaseRequest() {
   };
   const loadProjects = async () => {
     try {
-
+       console.time("Load PR List");
       const response = await axios.get(
         "http://localhost:5000/api/PRList"
       );
 
       console.log(response.data);
       setProjects(response.data);
-      setLoading(false);
+      //setLoading(false);
 
 
     }
     catch (error) {
       console.log("Error loading projects", error);
     }
-
+     finally {
+    setLoading(false);
+  }
   };
   const [materials, setMaterials] = useState([]);
 
