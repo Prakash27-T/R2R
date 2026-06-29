@@ -15,12 +15,16 @@ export default function NewPurchaseReqst({ onClose }) {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [sites, setSites] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
+  const [legalEntities, setLegalEntities] = useState([]);
+  const [selectedEntity, setSelectedEntity] = useState("");
+  const [projects, setProjects] = useState([]);
+  const [selectedProject, setSelectedProject] = useState("");
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
     setReqDate(today);
     setAccDate(today);
     getSites();
-
+    getLegalEntities();
   }, []);
   const validateDate = (selectedDate) => {
     const today = new Date().toISOString().split("T")[0];
@@ -33,23 +37,75 @@ export default function NewPurchaseReqst({ onClose }) {
     return true;
 
   };
+  /* SITE ID */
   const getSites = async () => {
     try {
       const response = await axios.get(
         "http://localhost:5000/api/Sites_Id"
       );
       console.log(response.data);
-      //console.log("Sites Response:", response.data.value);
       setSites(response.data);
+
+
+    } catch (error) {
+  console.error("Status:", error.response?.status);
+  console.error("Message:", error.response?.data);
+  console.error(error);
+
+  setSites([]);
+}
+  };
+  /* warehouse ID */
+
+  const getWarehouses = async (SiteId) => {
+    try {
+
+      const response = await axios.get(
+        `http://localhost:5000/api/WH_Id?SiteId=${SiteId}`
+      );
+
+      console.log(response.data);
+      setWarehouses(response.data);
+
+    }
+    catch (error) {
+      console.log(error);
+      setWarehouses([]);
+    }
+
+  };
+  /* Legal Entity */
+  const getLegalEntities = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5000/api/Legal_entity"
+      );
+      console.log(response.data);
+      setLegalEntities(response.data.value);
 
     } catch (error) {
       console.error("Error loading sites:", error);
       setSites([]);
     }
   };
-  console.log("sites =", sites);
- 
+  /* Project Id */
+  const getProjects = async (LegalEntityId) => {
+  console.log("Calling API with:", LegalEntityId);
 
+  try {
+    const response = await axios.get(
+      `http://localhost:5000/api/ProjectId?LegalEntityId=${LegalEntityId}`
+    );
+
+    console.log("Project Response =", response.data);
+    setProjects(response.data);
+  } catch (error) {
+    console.log(error);
+    setProjects([]);
+  }
+};
+
+  console.log("sites =", sites);
   return (
 
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
@@ -124,7 +180,9 @@ export default function NewPurchaseReqst({ onClose }) {
 
             </div>
           </div>
-          {/*Site wareHouse*/}
+
+          {/* Site wareHouse */}
+
           <div className="flex flex-1 gap-2 py-3 flex-rowrap flex- sm:flex-row">
             <label className="py-2 text-sm font-medium text-gray-700 sm:w-40 shrink-0">
               Site Id
@@ -132,7 +190,15 @@ export default function NewPurchaseReqst({ onClose }) {
             <div className="relative flex-1 min-w-[138px]">
               <select
                 value={selectedSite}
-                onChange={(e) => setSelectedSite(e.target.value)}
+                onChange={(e) => {
+
+                  const SiteId = e.target.value;
+
+                  setSelectedSite(SiteId);
+                  setWarehouse("");
+                  getWarehouses(SiteId);
+
+                }}
                 className="w-full px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
               >
 
@@ -142,16 +208,16 @@ export default function NewPurchaseReqst({ onClose }) {
                   <option
                     key={site.SiteId}
                     value={site.SiteId}
-                   
+
                   >
                     {selectedSite === site.SiteId
-                    ? site.SiteId
-                     : `${site.SiteId} - ${site.SiteName}`}
+                      ? site.SiteId
+                      : `${site.SiteId} - ${site.SiteName}`}
 
                   </option>
                 ))}
               </select>
-              
+
 
             </div>
             <label className="self-center text-sm font-medium text-gray-700 whitespace-nowrap">
@@ -165,37 +231,84 @@ export default function NewPurchaseReqst({ onClose }) {
               className="w-full px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
             >
               <option value="">Select Warehouse </option>
+
+              {warehouses.map((item) => (
+                <option
+                  key={item.warehouseId}
+                  value={item.warehouseId}
+                >
+                  {item.warehouseId} - {item.warehouseName}
+                </option>
+              ))}
             </select>
 
           </div>
           {/* ProjectId and leagal entity */}
           <div className="flex flex-1 gap-2 py-3 flex-rowrap flex- sm:flex-row">
             <label className="py-2 text-sm font-medium text-gray-700 sm:w-40 shrink-0">
-              Proejct Id
+              LegalEntity
             </label>
             <div className="relative flex-1 min-w-[138px]">
               <select
-                value={selectedSite}
-                onChange={(e) => setSelectedSite(e.target.value)}
+                value={selectedEntity}
+                onChange={(e) => {
+                  const entity = e.target.value;
+                  setSelectedEntity(entity);
+                  setSelectedProject("");
+                  getProjects(entity);
+                }}
+
                 className="w-full px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
               >
 
-                <option value="">Select ProjectId</option>
+                <option value="">Select Entity</option>
+                {legalEntities?.map((entity) => (
 
+                  <option
+
+                    key={entity.LegalEntityId}
+
+                    value={entity.LegalEntityId}
+
+                  >
+
+                    {entity.LegalEntityId}
+
+                  </option>
+
+                ))}
 
               </select>
             </div>
             <label className="self-center text-sm font-medium text-gray-700 whitespace-nowrap">
-              LegalEntity
+              Project Id
             </label>
 
             <select
-
-              value={warehouse}
-              onChange={(e) => setWarehouse(e.target.value)}
+              value={selectedProject}
+              onChange={(e) => setSelectedProject(e.target.value)}
               className="w-full px-2 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
             >
-              <option value="">Select Entity </option>
+              <option value="">Select ProjectId </option>
+              {
+
+                projects.map(project => (
+
+                  <option
+
+                    key={project.ProjectID}
+
+                    value={project.ProjectID}
+
+                  >
+
+                    {project.ProjectID}
+
+                  </option>
+
+                ))
+
+              }
             </select>
 
           </div>

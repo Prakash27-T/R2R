@@ -49,7 +49,7 @@ export default function DbsPurchaseRequest() {
   };
   const loadProjects = async () => {
     try {
-
+       console.time("Load PR List");
       const response = await axios.get(
         "http://localhost:5000/api/PRList"
       );
@@ -86,7 +86,6 @@ export default function DbsPurchaseRequest() {
 
       setLoading(false);
     }
-
   };
 
 
