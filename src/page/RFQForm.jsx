@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import RFQGenerateModal from "./components/RFQGenerateModal";
+import RFQGenerateModal from "../components/RFQGenerateModal";
 const Select = ({ placeholder, options = [], value, onChange, className = "" }) => (
   <div className={`relative ${className}`}>
     <select

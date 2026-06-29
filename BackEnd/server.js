@@ -10,7 +10,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+let cachedToken = null;
+let tokenExpiry = 0;
+
 async function getAccessToken() {
+
+  // Reuse token if it hasn't expired
+  if (cachedToken && Date.now() < tokenExpiry) {
+    console.log(Date.now()+" :expire in= "+tokenExpiry);
+    return cachedToken;
+  }
+
   const tokenResponse = await axios.post(
     process.env.D365_TOKEN_URL,
     new URLSearchParams({
@@ -26,7 +36,14 @@ async function getAccessToken() {
     }
   );
 
-  return tokenResponse.data.access_token;
+  cachedToken = tokenResponse.data.access_token;
+  console.log("New token fetched: " + cachedToken);
+
+  // expires_in = 3599 seconds
+  tokenExpiry =
+    Date.now() + (tokenResponse.data.expires_in - 60) * 1000;
+
+  return cachedToken;
 }
 // login 
 
@@ -71,14 +88,10 @@ app.post("/login", async (req, res) => {
     }
 
     // Remove password before sending to frontend
-    const { Password, ...safeUser } = user;
+    const { Password, ["@odata.etag"]: odataEtag, ...safeUser } = user;
 
-    return res.status(200).json({
-      success: true,
-      message: "Login successful",
-      status: safeUser.Status,
-      user: safeUser,
-    });
+    console.log("Login Successful:", safeUser);
+    return res.status(200).json({ success: true, user: safeUser });
 
   } catch (err) {
     console.error(err);
@@ -110,6 +123,7 @@ app.get("/api/PRList", async (req, res) => {
       LineStatus: item.RequisitionStatus,
       PreparerPersonnelNumber: item.PreparerPersonnelNumber,
       DefaultAccountingDate: item.DefaultAccountingDate,
+      ProjectBuyingLegalEntityId: item.ProjectBuyingLegalEntityId,
     }));
 
     res.json(PRList);
@@ -161,6 +175,7 @@ app.get("/api/PR_lines/:RequisitionNumber", async (req, res) => {
       DeliveryAddressCity: item.DeliveryAddressCity,
       ReceivingWarehouseId: item.ReceivingWarehouseId,
       ReceivingSiteId: item.ReceivingSiteId,
+      RequisitionLineNumber: item.RequisitionLineNumber
     }));
 
     res.json(materials);
@@ -183,7 +198,7 @@ app.get("/api/Sites_Id", async (req, res) => {
   try {
     console.log("started-sitesid")
     const accessToken = await getAccessToken();
-     console.log("Token received");
+    console.log("Token received");
     const response = await axios.get(
       process.env.PR_SITEID,
       {
@@ -193,8 +208,8 @@ app.get("/api/Sites_Id", async (req, res) => {
         }
       }
     );
-     console.log(response.data.value);
-      const sites = response.data.value.map(site => ({
+    console.log(response.data.value);
+    const sites = response.data.value.map(site => ({
       SiteId: site.SiteId,
       SiteName: site.SiteName
     }));
@@ -202,7 +217,7 @@ app.get("/api/Sites_Id", async (req, res) => {
     res.json(sites);
 
 
-    
+
   } catch (error) {
     console.log(error);
     res.status(500).json(error);

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import RFQForm from "../RFQForm";
+import RFQForm from "../page/RFQForm";
 export default function RFQInitsucess() {
     const navigate = useNavigate();
   const [visible, setVisible] = useState(true);

@@ -1,4 +1,5 @@
 import { useParams, useNavigate, useLocation  } from "react-router-dom";
+import { formatDate } from "../util/util";
 import { useEffect, useState } from "react";
 import axios from "axios";
 export default function PRLineReport() {
@@ -22,19 +23,19 @@ const rowsPerPage = 8;
       const response = await axios.get(
         `http://localhost:5000/api/PR_lines/${RequisitionNumber}`
       );
-      // console.log("materials:", response.data);
-      setMaterials(response?.data || []);
-      const prDetails = materials?.[0] || {};
+     const sortedMaterials = (response.data || []).sort(
+      (a, b) => a.RequisitionLineNumber - b.RequisitionLineNumber
+    );
+
+    setMaterials(sortedMaterials);
 
     } catch (error) {
       console.error(error);
     }
   };
-  // console.log("PR Details:", prDetails);
 
   const indexOfLastRow = currentPage * rowsPerPage;
 const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-
 const currentMaterials = materials.slice(
   indexOfFirstRow,
   indexOfLastRow
@@ -87,9 +88,7 @@ const totalPages = Math.ceil(materials.length / rowsPerPage);
                 <p className="text-xs text-slate-400 font-medium uppercase tracking-wide mb-0.5">RequestedDate</p>
                 <p className="text-sm font-semibold text-slate-700">
                   {prDetails?.RequestedDate
-                    ? new Date(prDetails.RequestedDate)
-                      .toLocaleDateString("en-GB")
-                      .replace(/\//g, "-")
+                    ? formatDate(prDetails.RequestedDate)
                     : "—"}
                 </p>
               </div>
@@ -98,9 +97,7 @@ const totalPages = Math.ceil(materials.length / rowsPerPage);
                 <p className="text-sm font-semibold text-slate-700">
                   {
                   prDetails.AccountingDate
-                    ? new Date(prDetails.AccountingDate)
-                      .toLocaleDateString("en-GB")
-                      .replace(/\//g, "-")
+                    ? formatDate(prDetails.AccountingDate)
                     : "—"}
                 </p>              </div>
               <div>
@@ -125,6 +122,7 @@ const totalPages = Math.ceil(materials.length / rowsPerPage);
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="text-xs tracking-wide uppercase bg-slate-100 text-slate-500">
+                    <th className="px-4 py-3 font-medium text-left">S.No</th>
                     <th className="px-4 py-3 font-medium text-left">Product Name</th>
                     <th className="px-4 py-3 font-medium text-left">Category</th>
                     <th className="px-4 py-3 font-medium text-left">Description</th>
@@ -137,6 +135,9 @@ const totalPages = Math.ceil(materials.length / rowsPerPage);
                 <tbody className="bg-white divide-y divide-slate-100">
                   {currentMaterials?.map((m, i) => (
                     <tr key={i} className="transition hover:bg-slate-50">
+                      <td className="px-4 py-3 font-medium text-slate-700">
+                        {m.RequisitionLineNumber}
+                      </td>
                       <td className="px-4 py-3 font-medium text-slate-700">
                         {m.ProductName}
                       </td>
@@ -159,7 +160,6 @@ const totalPages = Math.ceil(materials.length / rowsPerPage);
 
                       <td className="px-4 py-3 text-right text-slate-700">
                         {(m.RequestedPrice ?? 0).toLocaleString("en-IN")}
-                        <span className="text-xs text-slate-400"> Rs</span>
                       </td>
                     </tr>
                   ))}

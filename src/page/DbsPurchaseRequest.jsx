@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import NewPurchaseReqst from "./NewPurchaseReqst";
 import PrRequstInitSuccess from "./PrRequstInitSuccess";
 import PRMaterialRequirement from "./PRMaterialRequirement";
-import PRRequestApproved from "./components/PRRequestApproved";
+import PRRequestApproved from "../components/PRRequestApproved";
 import { useNavigate } from "react-router-dom";
+import { formatDate } from "../util/util";
 import axios from "axios";
-import PRLineReport from "./components/PRLineReport";
-const stats = [];
+import PRLineReport from "../components/PRLineReport";
 export default function DbsPurchaseRequest() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
@@ -18,6 +18,10 @@ export default function DbsPurchaseRequest() {
   const [showFilter, setShowFilter] = useState(false);
   const [filter, setFilter] = useState("All");
   const [projects, setProjects] = useState([]);
+  const [company, setCompany] = useState(() => {
+    const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+    return user.Company || "";
+  });
   const [prdetails, setPrdetails] = useState({
     totalPR: 0,
     draftPR: 0,
@@ -26,23 +30,23 @@ export default function DbsPurchaseRequest() {
   });
   const navigate = useNavigate();
   const statusStyles = {
-      Draft:
-        "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-md",
+    Draft:
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-md",
 
-      InReview:
-        "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md",
+    InReview:
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md",
 
-      Approved:
-        "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-md",
+    Approved:
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-md",
 
-      Rejected:
-        "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-md",
+    Rejected:
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-md",
 
-      Closed:
-        "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-slate-700 bg-slate-100 border border-slate-200 rounded-md",
+    Closed:
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-slate-700 bg-slate-100 border border-slate-200 rounded-md",
     Cancelled:
-          "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-md"
-    };
+      "inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-md"
+  };
   const loadProjects = async () => {
     try {
 
@@ -51,29 +55,40 @@ export default function DbsPurchaseRequest() {
       );
 
       console.log(response.data);
-      setProjects(response.data);
-      setLoading(false);
+      const filteredByCompany = response.data.filter(
+        pr => pr.ProjectBuyingLegalEntityId === company?.toUpperCase()
+      );
+
+      setProjects(filteredByCompany);
+      console.log(company)
       console.log("Projects loaded successfully");
-      setPrdetails({
-        totalPR: response.data.length,
-        draftPR: response.data.filter(
-          (pr) => pr.LineStatus === "Draft"
+      const details = {
+        totalPR: filteredByCompany.length,
+        draftPR: filteredByCompany.filter(
+          pr => pr.LineStatus === "Draft"
         ).length,
-        approvedPR: response.data.filter(
-          (pr) => pr.LineStatus === "Approved"
+        approvedPR: filteredByCompany.filter(
+          pr => pr.LineStatus === "Approved"
         ).length,
-        closedPR: response.data.filter(
-          (pr) => pr.LineStatus === "Closed"
-        ).length,
-      });
+        closedPR: filteredByCompany.filter(
+          pr => pr.LineStatus === "Closed"
+        ).length
+      };
+
+      setPrdetails(details);
+
+      console.log(details);
       console.log("PR Details:", prdetails);
     }
     catch (error) {
       console.log("Error loading projects", error);
+    } finally {
+
+      setLoading(false);
     }
 
   };
-  const [materials, setMaterials] = useState([]);
+
 
   const handleRowClick = async (row) => {
     const response = await axios.get(
@@ -165,9 +180,9 @@ export default function DbsPurchaseRequest() {
         </div>
       </header>
 
-      <main className="max-w-screen-xl px-8 py-6 mx-auto  space-y-6">
+      <main className="max-w-screen-xl px-4 py-4 mx-auto space-y-6 sm:px-6 lg:px-8">
         {/* Stats + Illustration */}
-        <div className="flex flex-col items-center gap-6 p-6 bg-white shadow-sm rounded-3xl lg:flex-row">
+        <div className="flex flex-col gap-6 p-4 bg-white shadow-sm rounded-3xl sm:p-6 lg:flex-row">
           <div className="grid grid-cols-1 min-[425px]:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <StatCard
               number={prdetails.totalPR}
@@ -221,27 +236,31 @@ export default function DbsPurchaseRequest() {
             </svg>
           </div>
         </div>
-
         {/* Table Section */}
-        <div className="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
+        <div className="pt-8 px-6 pb-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
           {/* Table Header */}
-          <div className="flex flex-col gap-4 mb-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-4 mb-5 sm:flex-row sm:items-center sm:justify-between">
 
             {/* Title */}
-            <h2 className="text-xl font-semibold text-slate-800">
+            <h2 className="text-lg font-semibold text-slate-800 sm:text-xl shrink-0">
               Purchase Requisitions
             </h2>
 
             {/* Right Section */}
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+            <div className="flex flex-col gap-5 w-full md:flex-row md:w-auto md:items-center">
+              <select name="company" id="company">
+                <option value={company}>
+                  {company?.toUpperCase()}
+                </option>
 
+              </select>
               {/* Tabs */}
-              <div className="flex w-full p-1 bg-gray-100 rounded-lg sm:w-auto">
+              <div className="flex w-full p-1 bg-slate-100 rounded-lg sm:w-fit">
                 <button
                   onClick={() => setActiveTab("active")}
                   className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "active"
-                      ? "bg-white text-blue-600 shadow-sm"
-                      : "text-slate-500 hover:text-slate-700"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
                     }`}
                 >
                   <svg
@@ -263,8 +282,8 @@ export default function DbsPurchaseRequest() {
                 <button
                   onClick={() => setActiveTab("history")}
                   className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "history"
-                      ? "bg-white text-blue-600 shadow-sm"
-                      : "text-slate-500 hover:text-slate-700"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
                     }`}
                 >
                   <svg
@@ -285,10 +304,12 @@ export default function DbsPurchaseRequest() {
               </div>
 
               {/* Actions */}
-              <div className="flex items-center w-full gap-2 sm:w-auto">
-
+              <div className="flex items-center justify-between w-full gap-2 sm:justify-end sm:w-auto">
                 {/* Search */}
-                <div className="relative flex-1 sm:flex-none">
+                <div
+                  className={`relative overflow-hidden transition-all duration-300 ease-in-out ${showSearch ? "w-40 sm:w-48" : "w-10"
+                    }`}
+                >
                   {showSearch ? (
                     <input
                       autoFocus
@@ -297,12 +318,12 @@ export default function DbsPurchaseRequest() {
                       onChange={(e) => setSearch(e.target.value)}
                       onBlur={() => !search && setShowSearch(false)}
                       placeholder="Search..."
-                      className="w-full sm:w-44 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                      className="w-full h-10 px-3 text-sm border rounded-lg border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
                     />
                   ) : (
                     <button
                       onClick={() => setShowSearch(true)}
-                      className="p-2 border rounded-lg border-slate-200 hover:bg-gray-50 text-slate-500"
+                      className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition-all duration-200 hover:bg-slate-100 hover:text-slate-700 hover:shadow-sm active:scale-95 gap-1"
                     >
                       <svg
                         className="w-4 h-4"
@@ -321,62 +342,63 @@ export default function DbsPurchaseRequest() {
                   )}
                 </div>
 
-              {/* Filter */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowFilter(!showFilter)}
+                {/* Filter */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowFilter(!showFilter)}
 
-                  className="flex items-center gap-1 p-2 border rounded-lg border-slate-200 hover:bg-gray-50 text-slate-500">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
-                  </svg>
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+                    className="flex items-center justify-center h-11 w-11 gap-1 border rounded-lg border-slate-200 text-slate-500 transition-all duration-300 hover:bg-gray-50 hover:scale-105">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+                    </svg>
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
 
-                </button>
-                {showFilter && (
+                  </button>
+                  {showFilter && (
                     <div className="absolute z-50 w-40 mt-2 bg-white border rounded-lg shadow-lg right-3">
 
-                    {statusOptions.map((status) => (
-                      <div
-                        key={status}
-                        className="p-2 cursor-pointer hover:bg-gray-100"
-                        onClick={() => {
-                          setFilter(status);
-                          setShowFilter(false);
-                        }}
-                      >
-                        {status}
-                      </div>
-                    ))}
-                  </div>
+                      {statusOptions.map((status) => (
+                        <div
+                          key={status}
+                          className="p-2 cursor-pointer hover:bg-gray-100"
+                          onClick={() => {
+                            setFilter(status);
+                            setShowFilter(false);
+                          }}
+                        >
+                          {status}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Create New PR Button*/}
+                <button
+
+                  onClick={() => setShowPopup(true)}
+                  className="flex items-center justify-center gap-2 px-4 h-10 text-sm font-semibold text-white bg-blue-700 rounded-lg transition-all duration-300 hover:bg-blue-800 hover:scale-105 whitespace-nowrap">
+                  <span className="text-lg leading-none">+</span>
+                  New
+                </button>
+                {showPopup && (
+                  <NewPurchaseReqst onClose={() => setShowPopup(false)} />
                 )}
               </div>
-
-              {/* Create New PR Button*/}
-              <button
-
-                onClick={() => setShowPopup(true)}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white transition-colors bg-blue-700 rounded-lg shadow-sm hover:bg-blue-800">
-                <span className="text-lg leading-none">+</span>
-                New
-              </button>
-              {showPopup && (
-                <NewPurchaseReqst onClose={() => setShowPopup(false)} />
-              )}
             </div>
           </div>
-
           {/* Table */}
-          <div className="overflow-x-auto border border-gray-100 rounded-xl">
-            <table className="w-full text-sm text-left">
+          <div className="w-full overflow-x-auto border border-gray-100 rounded-xl">
+            <table className="min-w-[900px] w-full text-sm text-left">
               <thead>
                 <tr className="text-xs font-semibold tracking-wide normal-case bg-gray-50 text-slate-500">
                   <th className="px-4 py-3">PR ID</th>
                   <th className="w-1/4 px-4 py-3">Name</th>
                   <th className="px-4 py-3 text-center">Project ID</th>
-                  <th className="px-4 py-3 text-center">Prepare</th>
+                  <th className="px-4 py-3 text-center">Company</th>
+                  <th className="px-4 py-3 text-center">Preparer</th>
                   <th className="px-4 py-3 text-center">Status</th>
                   <th className="px-4 py-3 text-center">Requested date</th>
                   <th className="px-4 py-3 text-center">Purpose</th>
@@ -385,8 +407,9 @@ export default function DbsPurchaseRequest() {
               </thead>
               {loading ? (
                 <tbody className="divide-y divide-gray-100">
+                  {/* loader */}
                   <tr>
-                    <td colSpan={8} className="h-[300px]">
+                    <td colSpan={9} className="h-[300px]">
                       <div className="flex items-center justify-center h-full">
                         <div className="w-12 h-12 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
                       </div>
@@ -406,6 +429,7 @@ export default function DbsPurchaseRequest() {
                       <td className="px-4 py-3">{row.RequisitionNumber}</td>
                       <td className="px-4 py-3">{row.RequisitionName}</td>
                       <td className="px-4 py-3 text-center">{row.ProjectId}</td>
+                      <td className="px-4 py-3 text-center">{row.ProjectBuyingLegalEntityId}</td>
                       <td className="px-4 py-3 text-center">{row.PreparerPersonnelNumber}</td>
                       <td className="px-4 py-3 text-center">
                         <span className={statusStyles[row.LineStatus]}>
@@ -413,31 +437,29 @@ export default function DbsPurchaseRequest() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        {new Date(row.RequestedDate)
-                          .toLocaleDateString("en-GB")
-                          .replace(/\//g, "-")}
+                        {row.RequestedDate
+                          ? formatDate(row.RequestedDate)
+                          : "-"}
                       </td>
                       <td className="px-4 py-3 text-center">{row.RequisitionPurpose}</td>
                       <td className="px-4 py-3 text-center">
-                        {row.DefaultAccountingDate
-                          ? new Date(row.DefaultAccountingDate)
-                            .toLocaleDateString("en-GB")
-                            .replace(/\//g, "-")
-                          : "-"}
+                        {
+                          formatDate(row.DefaultAccountingDate)
+                        }
                       </td>
                     </tr>
                   ))}
                 </tbody>
               )}
             </table>
-            <div className="flex items-center justify-between px-4 py-3 bg-white border-t">
+            <div className="flex flex-col gap-3 px-4 py-3 bg-white border-t sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm text-gray-500">
                 Showing {indexOfFirstRow + 1} -
                 {Math.min(indexOfLastRow, filteredProjects.length)} of{" "}
                 {filteredProjects.length}
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center justify-center gap-2">
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                   disabled={currentPage === 1}

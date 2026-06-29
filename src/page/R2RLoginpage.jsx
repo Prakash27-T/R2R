@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { NavLink, Outlet } from "react-router-dom";
 import app from "./App";
 import axios from "axios";
-import AdminPortal from "./components/AdminPortal";
+import AdminPortal from "../components/AdminPortal";
 export default function R2RLoginpage() {
   const navigate = useNavigate();
 
@@ -17,8 +17,12 @@ export default function R2RLoginpage() {
 
   const handleLogin = async () => {
 
-    if (email === "admin" && password === "123") {
-      navigate("/admin-portal");
+    if(email === "admin" && password === "123"){
+
+   sessionStorage.setItem("isAuthenticated", "true");
+   sessionStorage.setItem("role", "admin");
+
+   navigate("/admin-portal");
     }
     else {
 
@@ -30,25 +34,26 @@ export default function R2RLoginpage() {
             password,
           }
         );
-
+        console.log("Login Response:", data);
         if (data.success) {
-          // Store logged-in user
-          localStorage.setItem("user", JSON.stringify(data.user));
 
-          console.log("Stored User:", data.user);
 
           // Navigate based on status
-          if (data.status === "Yes") {
+          if (data.user.Status === "Yes") {
+            // Store logged-in user
+            sessionStorage.setItem("user", JSON.stringify(data.user));
+            console.log("Stored User:", JSON.parse(sessionStorage.getItem("user")));
+            sessionStorage.setItem("isAuthenticated", "true");
             navigate("/app");
           } else {
-            setError(`User status: ${data.status}`);
+            setError(`User status: ${data.user.Status}`);
           }
         } else {
           setError(data.message);
         }
       } catch (err) {
         console.error(err);
-        setError("error: " + err.response?.data?.message || "Server error");
+        setError(`Error: ${err.response?.data?.message || "Server error"}`);
       }
     }
   };
@@ -62,9 +67,8 @@ export default function R2RLoginpage() {
         <div className="flex flex-col items-center mb-8">
 
 
-
           <p className="mt-1 text-sm text-gray-500">
-
+          a.alshoha@shelter.co ---- 12345678
           </p>
         </div>
 

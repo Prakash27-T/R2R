@@ -2,9 +2,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import App from "./page/App.jsx"
-import "./page/App.css";
-import "./page/index.css";
+import App from "./page/App.css";
+import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>

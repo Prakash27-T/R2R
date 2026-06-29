@@ -1,5 +1,5 @@
 import { useState } from "react";
-import RFQInitsucess from  "./components/RFQInitsucess";
+import RFQInitsucess from  "../components/RFQInitsucess";
 
 const currencies = ["USD", "EUR", "GBP", "INR", "AED", "JPY", "SGD"];
 const deliveryLocations = ["Mumbai", "Delhi", "Bengaluru", "Chennai", "Hyderabad"];

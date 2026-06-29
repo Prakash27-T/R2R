@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import axios from "axios";
-import CreatePurchaseOrder from "./components/CreatePurchaseOrder";
-import POInitiatedSucess from "./components/POInitiatedSucess";
+import CreatePurchaseOrder from "../components/CreatePurchaseOrder";
+import POInitiatedSucess from "../components/POInitiatedSucess";
 
 //import POdetailform from "./POdetailform";
-//import POInitiatedSucess from "./components/POInitiatedSucess";
+//import POInitiatedSucess from "../components/POInitiatedSucess";
 
 
 
